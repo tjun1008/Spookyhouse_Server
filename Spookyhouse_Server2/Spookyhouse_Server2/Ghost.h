@@ -25,29 +25,6 @@ public:
 	// À§Ä¡ ¼³Á¤
 	void SetLocation(float x, float y, float z);
 
-	friend ostream& operator<<(ostream& stream, Ghost& info)
-	{
-		stream << info.X << endl;
-		stream << info.Y << endl;
-		stream << info.Z << endl;
-		stream << info.Health << endl;
-		stream << info.Id << endl;
-		stream << info.bIsAttacking << endl;
-
-		return stream;
-	}
-
-	friend istream& operator>>(istream& stream, Ghost& info)
-	{
-		stream >> info.X;
-		stream >> info.Y;
-		stream >> info.Z;
-		stream >> info.Health;
-		stream >> info.Id;
-		stream >> info.bIsAttacking;
-
-		return stream;
-	}
 
 	float	X;				// XÁÂÇ¥
 	float	Y;				// YÁÂÇ¥

@@ -1,6 +1,10 @@
 #include "protocol.h"
 #include "Ghost.h"
 
+map <int, SESSION> players;
+map<int, Ghost> Ghosts;
+
+void MonsterManagementThread(int p_id);
 
 void send_packet(int p_id, void* buf)
 {
@@ -16,7 +20,7 @@ void send_packet(int p_id, void* buf)
 	WSASend(players[p_id].m_s, s_over->m_wsabuf, 1, 0, 0, &s_over->m_over, 0);
 }
 
-void send_move_packet(int p_id)
+void send_move_packet(int c_id, int p_id)
 {
 	s2c_packet_pc_move packet;
 	packet.id = p_id;
@@ -35,7 +39,7 @@ void send_move_packet(int p_id)
 	packet.vy = players[p_id].character.vy;
 	packet.vz = players[p_id].character.vz;
 
-	send_packet(p_id, &packet); //오버라이트가 커서 주소만 보내서 전송
+	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
 
 void player_move(int p_id, char dir)
@@ -45,29 +49,11 @@ void player_move(int p_id, char dir)
 	short z = players[p_id].character.z;
 
 	//움직일때 클라에서 처리 or 여기서 처리
-	/*
-	switch (dir) {
-	case 0:
-		if(y>0)
-		y--;
-		break;
-	case 1:
-		if (x < (BOARD_WIDTH - 1)) x++;
-		break;
-	case 2:
-		if (y < (BOARD_HEIGHT - 1)) y++;
-		break;
-	case 3: 
-		if (x > 0)
-			x--;
-		break;
 
+	for (auto& cl : players) {
+		if (false == cl.second.m_ingame) continue;
+		send_move_packet(cl.second.m_id, p_id);
 	}
-	players[p_id].m_x = x;
-	players[p_id].m_y = y;
-	*/
-
-	send_move_packet(p_id);
 }
 
 
@@ -87,7 +73,7 @@ void send_login_info(int p_id)
 	send_packet(p_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
 
-void send_colid_packet(int p_id)
+void send_colid_packet(int c_id, int p_id)
 {
 	s2c_packet_pc_colid packet;
 	packet.id = p_id;
@@ -96,7 +82,7 @@ void send_colid_packet(int p_id)
 	packet.hp = players[p_id].character.hp;
 	packet.isalive = players[p_id].character.isalive;
 
-	send_packet(p_id, &packet); //오버라이트가 커서 주소만 보내서 전송
+	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
 
 void colid(int p_id)
@@ -115,9 +101,12 @@ void colid(int p_id)
 	}
 	
 	
-	
+	for (auto& cl : players) {
+		if (false == cl.second.m_ingame) continue;
+		send_colid_packet(cl.second.m_id, p_id);
+	}
 
-	send_colid_packet(p_id); 
+	//send_colid_packet(p_id); 
 }
 
 void send_ghost_packet(int p_id)
@@ -126,10 +115,35 @@ void send_ghost_packet(int p_id)
 	packet.id = p_id;
 	packet.size = sizeof(packet);
 	packet.type = S2C_PACKET_GHOST_MOVE;
-	packet.ghosts = Ghosts;
+	//packet.ghosts = Ghosts.;
 
 	send_packet(p_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
+
+void send_pc_login(int c_id, int p_id)
+{
+	s2c_packet_pc_login packet;
+	packet.id = p_id;
+	packet.size = sizeof(packet);
+	packet.type = S2C_PACKET_PC_LOGIN;
+	packet.x = players[p_id].character.x;
+	packet.y = players[p_id].character.y;
+	strcpy_s(packet.name, players[p_id].m_name);
+	packet.o_type = 0;
+
+	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
+}
+
+void send_pc_logout(int c_id, int p_id)
+{
+	s2c_packet_pc_logout packet;
+	packet.id = p_id;
+	packet.size = sizeof(packet);
+	packet.type = S2C_PACKET_PC_LOGOUT;
+
+	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
+}
+
 
 void process_packet(int p_id, unsigned char* packet)
 {
@@ -139,17 +153,29 @@ void process_packet(int p_id, unsigned char* packet)
 	{
 	strcpy_s(players[p_id].m_name, p->name);
 	send_login_info(p_id);
+	players[p_id].m_ingame = true;
+
+	for (auto& p : players) {
+		if (p.second.m_id == p_id) continue;
+		if (p.second.m_ingame == false) continue;
+		send_pc_login(p_id, p.second.m_id);
+		send_pc_login(p.second.m_id, p_id);
+	}
 	}
 		break;
 	case C2S_PACKET_MOVE:
 	{
 	c2s_packet_move* move_packet = reinterpret_cast<c2s_packet_move*>(packet);
-	send_move_packet(p_id);
+
+	for (auto& cl : players) {
+		if (false == cl.second.m_ingame) continue;
+		send_move_packet(cl.second.m_id, p_id);
+	}
 	}
 		break;
 	case C2S_PACKET_COLID:
 	{
-		c2s_packet_move* colid_packet = reinterpret_cast<c2s_packet_move*>(packet);
+		c2s_packet_colid* colid_packet = reinterpret_cast<c2s_packet_colid*>(packet);
 		colid(p_id);
 	}
 	break;
@@ -185,11 +211,14 @@ void do_accept(SOCKET s_socket ,SOCKET *c_socket, EX_OVER *a_over)
 	*c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 	memset(&a_over->m_over, 0, sizeof(a_over->m_over));
 	DWORD num_byte;
-	BOOL ret = AcceptEx(s_socket, *c_socket, a_over->m_netbuf, 0, 16, 16, &num_byte, &a_over->m_over); //16은 최소
+	int addr_size = sizeof(SOCKADDR_IN) + 16;
+	BOOL ret = AcceptEx(s_socket, *c_socket, a_over->m_netbuf, 0, addr_size, addr_size, &num_byte, &a_over->m_over); //주소구조체보다 16바이트를 더 줘야한다
 	if (FALSE == ret) {
 		int err = WSAGetLastError();
-		error_display("ACCPTEX: ", err);
-		exit(-1);
+		if (WSA_IO_PENDING != err) {
+			error_display("ACCPTEX: ", err);
+			exit(-1);
+		}
 	}
 }
 
@@ -198,6 +227,11 @@ void disconnect(int p_id)
 	players[p_id].m_ingame = false;
 	closesocket(players[p_id].m_s);
 	players.erase(p_id);
+
+	for (auto& cl : players) {
+		if (false == cl.second.m_ingame) continue;
+		send_pc_logout(cl.second.m_id, p_id);
+	}
 }
 
 int main()
@@ -222,6 +256,7 @@ int main()
 	SOCKET c_socket;
 
 	EX_OVER a_over;
+	a_over.m_op = OP_ACCEPT;
 	do_accept(listenSocket,&c_socket, &a_over);
 
 	
@@ -230,9 +265,11 @@ int main()
 		DWORD num_byte;
 		ULONG_PTR i_key;
 		WSAOVERLAPPED* over;
-		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_byte, &i_key, &over, INFINITE);
+		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_byte, &i_key, &over, INFINITE); //여기서 처리함
 		int key = static_cast<int>(i_key);
 		if (FALSE == ret) {
+			int err = WSAGetLastError();
+			error_display("GQCS: ", err);
 			disconnect(key);
 			continue;
 		}
@@ -246,9 +283,9 @@ int main()
 			
 			while (true) {
 				int packet_size = ps[0];
-				if (packet_size <= remain_data) break;
+				if (packet_size > remain_data) break;
 				
-				MonsterManagementThread(key); //몬스터 초기화및 실행
+				//MonsterManagementThread(key); //몬스터 초기화및 실행
 				process_packet(key, ps);
 				remain_data -= packet_size;
 				ps += packet_size;
@@ -281,6 +318,8 @@ int main()
 			n_s.m_prev_recv = 0;
 			n_s.m_recv_over.m_op = OP_RECV;
 			n_s.m_s = c_socket;
+			n_s.m_name[0] = 0;
+			
 
 			CreateIoCompletionPort(reinterpret_cast<HANDLE>( c_socket), h_iocp, p_id, 0);
 			
@@ -290,7 +329,9 @@ int main()
 			do_accept(listenSocket,&c_socket,&a_over);
 			cout << "New Client [" << p_id << "] connected!\n";
 		}
-		default: cout << "Unknown GQCS ERRor!\n";
+		break;
+		default: 
+			cout << "Unknown GQCS ERRor!\n";
 			exit(1);
 			
 		}
@@ -314,9 +355,10 @@ void error_display(const char* msg, int err_no)
 		(LPTSTR)&lpMsgBuf, 0, NULL);
 	std::cout << msg;
 	std::wcout << L"에러 " << lpMsgBuf << std::endl;
-	while (true);
+	//while (true);
 	LocalFree(lpMsgBuf);
 }
+
 
 void InitializeGhostSet()
 {

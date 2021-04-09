@@ -18,13 +18,79 @@ void error_display(const char* msg, int err_no);
 constexpr int MAX_NAME = 50;
 
 constexpr int MAX_BUFFER = 1024;
-constexpr short SERVER_PORT = 3500;
+constexpr short SERVER_PORT = 3800;
 constexpr int BOARD_WIDTH = 8;
 constexpr int BOARD_HEIGHT = 8;
 constexpr int MAX_USER = 10;
 constexpr short DAMAGE =10;
 
 enum OP_TYPE { OP_RECV, OP_SEND, OP_ACCEPT };
+
+class CharacterPacket {
+private:
+
+
+public:
+
+
+	int PlayerID; // 플레이어 ID
+
+	// 위치
+	float x, y, z;
+
+	// 회전값
+	float yaw, pitch, roll;
+
+	// 속도
+	float vx, vy, vz;
+
+	// etc
+	int hp;
+	int skill_gage;
+	bool isalive = true;
+
+	CharacterPacket() {};
+	~CharacterPacket() {};
+
+};
+
+class Ghost
+{
+public:
+	Ghost();
+	virtual ~Ghost();
+
+	// 플레이어로 이동
+	void MoveTo(const CharacterPacket& target);
+	// 플레이어 타격
+	void HitPlayer(CharacterPacket& target);
+	// 살아있는지 여부
+	bool IsAlive();
+	// 공격중인지 여부
+	bool IsAttacking();
+	// 플레이어가 추격 범위에 있는지
+	bool IsPlayerInTraceRange(const CharacterPacket& target);
+	// 플레이어가 타격 범위에 있는지
+	bool IsPlayerInHitRange(const CharacterPacket& target);
+	// 위치 설정
+	void SetLocation(float x, float y, float z);
+
+
+	float	X;				// X좌표
+	float	Y;				// Y좌표
+	float	Z;				// Z좌표
+	float	Health;			// 체력
+	int		Id;				// 고유 id
+	float	TraceRange;		// 추격 범위
+	float	HitRange;		// 타격 범위
+	float	MovePoint;		// 이동 포인트
+	float	HitPoint;		// 타격 포인트	
+	bool	bIsAttacking;	// 공격중인지	
+
+private:
+	bool	bIsTracking;	// 추격중인지
+};
+
 
 struct EX_OVER {
 	WSAOVERLAPPED m_over;
@@ -46,7 +112,6 @@ struct SESSION
 	Ghost ghosts;
 };
 
-map <int, SESSION> players;
 
 // IOCP 소켓 구조체
 
@@ -73,7 +138,6 @@ struct c2s_packet_login {
 struct c2s_packet_move {
 	unsigned char size;
 	unsigned char type;
-	char dir; // 0 : UP 1: RIGHT 2:DOWN 3: LEFT
 };
 
 struct c2s_packet_colid {
@@ -149,29 +213,3 @@ struct s2c_packet_pc_logout
 
 #pragma pack(pop)
 
-class CharacterPacket {
-private:
-
-
-public:
-
-	int PlayerID; // 플레이어 ID
-
-	// 위치
-	float x, y, z;
-
-	// 회전값
-	float yaw, pitch, roll;
-
-	// 속도
-	float vx, vy, vz;
-
-	// etc
-	int hp;
-	int skill_gage;
-	bool isalive = true;
-
-	CharacterPacket() {};
-	~CharacterPacket() {};
-
-};

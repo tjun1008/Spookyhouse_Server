@@ -1,4 +1,4 @@
-#include "Ghost.h"
+#include "protocol.h"
 #include <thread>
 
 

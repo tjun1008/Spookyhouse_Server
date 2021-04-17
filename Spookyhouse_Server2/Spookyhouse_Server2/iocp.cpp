@@ -274,72 +274,77 @@ int main()
 			continue;
 		}
 
-		EX_OVER* ex_over = reinterpret_cast<EX_OVER*>(over);
-		switch (ex_over->m_op) {
-		case OP_RECV:
-		{
-			unsigned char* ps = ex_over->m_netbuf; //패킷의 시작주소
-			int remain_data = num_byte + players[key].m_prev_recv; //받은 데이터 + 처리하고 남은 데이터
-			
-			while (true) {
-				int packet_size = ps[0];
-				if (packet_size > remain_data) break;
-				
-				//MonsterManagementThread(key); //몬스터 초기화및 실행
-				process_packet(key, ps);
-				remain_data -= packet_size;
-				ps += packet_size;
-				
+		if (key < MAX_USER) {
+
+			EX_OVER* ex_over = reinterpret_cast<EX_OVER*>(over);
+
+			switch (ex_over->m_op) {
+			case OP_RECV:
+			{
+				unsigned char* ps = ex_over->m_netbuf; //패킷의 시작주소
+				int remain_data = num_byte + players[key].m_prev_recv; //받은 데이터 + 처리하고 남은 데이터
+
+				while (true) {
+					int packet_size = ps[0];
+					if (packet_size > remain_data) break;
+
+
+					process_packet(key, ps);
+					remain_data -= packet_size;
+					ps += packet_size;
+
+				}
+				if (remain_data > 0)
+					memcpy(ex_over->m_netbuf, ps, remain_data);
+				players[key].m_prev_recv = remain_data;
+				do_recv(key);
 			}
-			if (remain_data > 0)
-				memcpy(ex_over->m_netbuf, ps, remain_data);
-			players[key].m_prev_recv = remain_data;
-			do_recv(key);
-		}
-		break;
-		case OP_SEND:
-			if (num_byte != ex_over->m_wsabuf[0].len)
-				disconnect(key);
-			delete ex_over;
 			break;
-		case OP_ACCEPT:
-		{
-			int p_id = get_new_player_id();
-			if (-1 == p_id) {
-				closesocket(c_socket);
-				do_accept(listenSocket,&c_socket, &a_over);
+			case OP_SEND:
+				if (num_byte != ex_over->m_wsabuf[0].len)
+					disconnect(key);
+				delete ex_over;
+				break;
+			case OP_ACCEPT:
+			{
+				int p_id = get_new_player_id();
+				if (-1 == p_id) {
+					closesocket(c_socket);
+					do_accept(listenSocket, &c_socket, &a_over);
 					continue;
+				}
+				SESSION t;
+				t.m_ingame = false;
+				players[p_id] = t; //가능하면 클래스로 처리
+				SESSION& n_s = players[p_id];
+				n_s.m_id = p_id;
+				n_s.m_prev_recv = 0;
+				n_s.m_recv_over.m_op = OP_RECV;
+				n_s.m_s = c_socket;
+				n_s.m_name[0] = 0;
+
+
+				CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), h_iocp, p_id, 0);
+
+				//x,y는 여기서 초기화 하는거 바람직하진않음 클라이언트가 로비패킷을 받을 때 초기화
+
+				do_recv(p_id);
+				do_accept(listenSocket, &c_socket, &a_over);
+				cout << "New Client [" << p_id << "] connected!\n";
 			}
-			SESSION t;
-			t.m_ingame = false;
-			players[p_id] = t; //가능하면 클래스로 처리
-			SESSION& n_s = players[p_id];
-			n_s.m_id = p_id;
-			n_s.m_prev_recv = 0;
-			n_s.m_recv_over.m_op = OP_RECV;
-			n_s.m_s = c_socket;
-			n_s.m_name[0] = 0;
-			
+			break;
+			default:
+				cout << "Unknown GQCS ERRor!\n";
+				exit(1);
 
-			CreateIoCompletionPort(reinterpret_cast<HANDLE>( c_socket), h_iocp, p_id, 0);
-			
-			 //x,y는 여기서 초기화 하는거 바람직하진않음 클라이언트가 로비패킷을 받을 때 초기화
+			}
 
-			do_recv(p_id);
-			do_accept(listenSocket,&c_socket,&a_over);
-			cout << "New Client [" << p_id << "] connected!\n";
+			//MonsterManagementThread(key); //몬스터 초기화및 실행
+
+			//cout << "New CLient [" << &clients[client_s].dataBuffer << "] :";
 		}
-		break;
-		default: 
-			cout << "Unknown GQCS ERRor!\n";
-			exit(1);
-			
-		}
-
-	
-
-		//cout << "New CLient [" << &clients[client_s].dataBuffer << "] :";
 	}
+
 	closesocket(listenSocket);
 	WSACleanup();
 }

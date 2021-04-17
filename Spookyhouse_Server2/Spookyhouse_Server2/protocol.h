@@ -21,17 +21,12 @@ constexpr int MAX_BUFFER = 1024;
 constexpr short SERVER_PORT = 3800;
 constexpr int BOARD_WIDTH = 8;
 constexpr int BOARD_HEIGHT = 8;
-constexpr int MAX_USER = 10;
+constexpr int MAX_USER = 4;
 constexpr short DAMAGE =10;
 
 enum OP_TYPE { OP_RECV, OP_SEND, OP_ACCEPT };
 
-class CharacterPacket {
-private:
-
-
-public:
-
+struct CharacterPacket {
 
 	int PlayerID; // 플레이어 ID
 
@@ -49,8 +44,7 @@ public:
 	int skill_gage;
 	bool isalive = true;
 
-	CharacterPacket() {};
-	~CharacterPacket() {};
+	SOCKET sock;
 
 };
 
@@ -138,6 +132,8 @@ struct c2s_packet_login {
 struct c2s_packet_move {
 	unsigned char size;
 	unsigned char type;
+
+	char dir; // 0 : UP 1: RIGHT 2:DOWN 3: LEFT
 };
 
 struct c2s_packet_colid {

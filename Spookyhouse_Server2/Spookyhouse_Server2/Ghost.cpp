@@ -1,4 +1,5 @@
-#include "protocol.h"
+#include "main_iocp.h"
+#include "Ghost.h"
 #include <thread>
 
 

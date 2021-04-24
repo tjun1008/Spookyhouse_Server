@@ -1,4 +1,4 @@
-#include "protocol.h"
+#include "main_iocp.h"
 #include "Ghost.h"
 
 map <int, SESSION> players;
@@ -109,6 +109,7 @@ void colid(int p_id)
 	//send_colid_packet(p_id); 
 }
 
+/*
 void send_ghost_packet(int p_id)
 {
 	s2c_packet_ghost_move packet;
@@ -119,7 +120,7 @@ void send_ghost_packet(int p_id)
 
 	send_packet(p_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
-
+*/
 void send_pc_login(int c_id, int p_id)
 {
 	s2c_packet_pc_login packet;
@@ -416,6 +417,7 @@ void CreateMonsterManagementThread() //서버 시작할 때 만들어짐
 }
 */
 
+/*
 void MonsterManagementThread(int p_id)
 {
 	// 몬스터 초기화
@@ -458,3 +460,4 @@ void MonsterManagementThread(int p_id)
 		Sleep(33);
 	}
 }
+*/

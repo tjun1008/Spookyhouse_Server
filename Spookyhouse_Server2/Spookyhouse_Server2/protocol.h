@@ -67,7 +67,7 @@ struct  s2c_packet_login_info
 	// Á¤º¸
 	short x, y,z;
 	short yaw, pitch, roll;
-	float vx, vy, vz;
+	short vx, vy, vz;
 
 	// etc
 	int hp;
@@ -81,7 +81,7 @@ struct s2c_packet_pc_login
 	unsigned char type;
 	int id;
 	char name[MAX_NAME];
-	short x, y;
+	short x, y,z;
 	char o_type;
 };
 
@@ -92,7 +92,7 @@ struct s2c_packet_pc_move
 	int id;
 	short x, y,z;
 	short yaw, pitch, roll;
-	float vx, vy, vz;
+	short vx, vy, vz;
 
 };
 
@@ -105,7 +105,7 @@ struct s2c_packet_pc_colid
 	bool isalive;
 };
 
-struct sc_packet_add_effect {
+struct sc_packet_skill {
 	unsigned char size;
 	unsigned char type;
 	char skill;

@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
-#include "protocol.h"
-using namespace std;
+
+#include "client.h"
+
 
 void send_login_packet(SOCKET socket)
 {
@@ -9,7 +10,6 @@ void send_login_packet(SOCKET socket)
 	packet.size = sizeof(packet);
 	packet.type = C2S_PACKET_LOGIN;
 	strcpy_s(packet.name, to_string(rand() % 100).c_str());
-
 
 	
 	send(socket, reinterpret_cast<char*>(&packet), packet.size, 0);
@@ -20,9 +20,12 @@ void send_move_packet(SOCKET socket)
 	c2s_packet_move packet;
 	packet.size = sizeof(packet);
 	packet.type = C2S_PACKET_MOVE;
+	// 좌표와 움직임을 넣음 클라에서 서버로 좌표를 넘겨주는 방식
+
 	//packet.x = x;
 	//packet.y = y;
-
+	//packet.z = z; etc
+	
 	send(socket, reinterpret_cast<char*>(&packet), packet.size, 0);
 }
 

@@ -42,6 +42,7 @@ void send_move_packet(int c_id, int p_id)
 	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
 
+/*
 void player_move(int p_id, char dir)
 {
 	short x = players[p_id].character.x;
@@ -55,7 +56,7 @@ void player_move(int p_id, char dir)
 		send_move_packet(cl.second.m_id, p_id);
 	}
 }
-
+*/
 
 
 void send_login_info(int p_id)
@@ -65,10 +66,21 @@ void send_login_info(int p_id)
 	packet.id = p_id;
 	packet.size = sizeof(packet);
 	packet.type = S2C_PACKET_LOGIN_INFO;
+
 	packet.x = players[p_id].character.x;
 	packet.y = players[p_id].character.y;
 	packet.z = players[p_id].character.z;
+
+	packet.yaw = players[p_id].character.yaw;
+	packet.pitch = players[p_id].character.pitch;
+	packet.roll = players[p_id].character.roll;
+
+	packet.vx = players[p_id].character.vx;
+	packet.vy = players[p_id].character.vy;
+	packet.vz = players[p_id].character.vz;
+	
 	packet.skill_gage = 0;
+	packet.isalive = true;
 	
 	send_packet(p_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
@@ -129,6 +141,7 @@ void send_pc_login(int c_id, int p_id)
 	packet.type = S2C_PACKET_PC_LOGIN;
 	packet.x = players[p_id].character.x;
 	packet.y = players[p_id].character.y;
+	packet.z = players[p_id].character.z;
 	strcpy_s(packet.name, players[p_id].m_name);
 	packet.o_type = 0;
 
@@ -322,6 +335,9 @@ int main()
 				n_s.m_prev_recv = 0;
 				n_s.m_recv_over.m_op = OP_RECV;
 				n_s.m_s = c_socket;
+				//n_s.character.x = 초기위치
+				//n_s.character.y = 초기위치
+				//n_s.character.z = 초기위치
 				n_s.m_name[0] = 0;
 
 
@@ -365,7 +381,7 @@ void error_display(const char* msg, int err_no)
 	LocalFree(lpMsgBuf);
 }
 
-
+/*
 void InitializeGhostSet()
 {
 	// 몬스터 초기화 ex
@@ -397,6 +413,7 @@ void InitializeGhostSet()
 	mFields.Id = 4;
 	Ghosts[mFields.Id] = mFields;
 }
+*/
 
 /*
 void CreateMonsterManagementThread() //서버 시작할 때 만들어짐

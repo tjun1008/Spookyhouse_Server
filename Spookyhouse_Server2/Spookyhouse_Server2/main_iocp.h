@@ -18,13 +18,13 @@ struct CharacterPacket {
 	int PlayerID; // 플레이어 ID
 
 	// 위치
-	float x, y, z;
+	short x, y, z;
 
 	// 회전값
-	float yaw, pitch, roll;
+	short yaw, pitch, roll;
 
 	// 속도
-	float vx, vy, vz;
+	short vx, vy, vz;
 
 	// etc
 	int hp;
@@ -54,7 +54,6 @@ struct SESSION
 	bool m_ingame;
 	char m_name[MAX_NAME];
 	CharacterPacket character; //수정예정
-	//Ghost ghosts;
 };
 
 void error_display(const char* msg, int err_no);

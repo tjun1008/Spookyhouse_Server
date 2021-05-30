@@ -2,17 +2,18 @@
 
 #include <iostream>
 #include <map>
-using namespace std;
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 #include "protocol.h"
 
+using namespace std;
 
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib,"MSWSock.lib")
 
 
 void error_display(const char* msg, int err_no);
+bool Init(SOCKET&, DWORD);
 
 
 
@@ -40,6 +41,7 @@ struct CharacterPacket {
 
 };
 
+/*
 class Ghost
 {
 public:
@@ -76,7 +78,7 @@ public:
 private:
 	bool	bIsTracking;	// 추격중인지
 };
-
+*/
 
 struct EX_OVER {
 	WSAOVERLAPPED m_over;
@@ -95,5 +97,4 @@ struct SESSION
 	bool m_ingame;
 	char m_name[MAX_NAME];
 	CharacterPacket character; //수정예정
-	Ghost ghosts;
 };

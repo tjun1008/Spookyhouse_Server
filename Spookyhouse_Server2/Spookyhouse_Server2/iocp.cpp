@@ -35,9 +35,6 @@ void send_move_packet(int c_id, int p_id)
 	packet.roll = players[p_id].character.roll;
 	packet.yaw = players[p_id].character.yaw;
 
-	packet.vx = players[p_id].character.vx;
-	packet.vy = players[p_id].character.vy;
-	packet.vz = players[p_id].character.vz;
 
 	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
@@ -85,64 +82,28 @@ void send_login_info(int p_id)
 	send_packet(p_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
 
-void send_colid_packet(int c_id, int p_id)
-{
-	s2c_packet_pc_colid packet;
-	packet.id = p_id;
-	packet.size = sizeof(packet);
-	packet.type = S2C_PACKET_PC_COLID;
-	packet.hp = players[p_id].character.hp;
-	packet.isalive = players[p_id].character.isalive;
 
-	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
-}
-
-void colid(int p_id)
-{
-	
-	// 충돌된 id를 넘겨주는 방식
-
-	cout << "[INFO]" << p_id << "충돌됨\n";
-
-	players[p_id].character.hp -= DAMAGE;
-	
-	if (players[p_id].character.hp < 0)
-	{
-		// 캐릭터 사망처리
-		players[p_id].character.isalive = false;
-	}
-	
-	
-	for (auto& cl : players) {
-		if (false == cl.second.m_ingame) continue;
-		send_colid_packet(cl.second.m_id, p_id);
-	}
-
-	//send_colid_packet(p_id); 
-}
-
-/*
-void send_ghost_packet(int p_id)
-{
-	s2c_packet_ghost_move packet;
-	packet.id = p_id;
-	packet.size = sizeof(packet);
-	packet.type = S2C_PACKET_GHOST_MOVE;
-	//packet.ghosts = Ghosts.;
-
-	send_packet(p_id, &packet); //오버라이트가 커서 주소만 보내서 전송
-}
-*/
 void send_pc_login(int c_id, int p_id)
 {
 	s2c_packet_pc_login packet;
 	packet.id = p_id;
 	packet.size = sizeof(packet);
+
 	packet.type = S2C_PACKET_PC_LOGIN;
 	packet.x = players[p_id].character.x;
 	packet.y = players[p_id].character.y;
 	packet.z = players[p_id].character.z;
+
+	packet.yaw = players[p_id].character.yaw;
+	packet.pitch = players[p_id].character.pitch;
+	packet.roll = players[p_id].character.roll;
+
+	packet.vx = players[p_id].character.vx;
+	packet.vy = players[p_id].character.vy;
+	packet.vz = players[p_id].character.vz;
+
 	strcpy_s(packet.name, players[p_id].m_name);
+
 	packet.o_type = 0;
 
 	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
@@ -155,6 +116,7 @@ void send_pc_logout(int c_id, int p_id)
 	packet.size = sizeof(packet);
 	packet.type = S2C_PACKET_PC_LOGOUT;
 
+	cout << "[" << p_id << "] logout \n";
 	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
 
@@ -172,7 +134,7 @@ void process_packet(int p_id, unsigned char* packet)
 	for (auto& p : players) {
 		if (p.second.m_id == p_id) continue;
 		if (p.second.m_ingame == false) continue;
-		send_pc_login(p_id, p.second.m_id);
+		send_pc_login(p_id, p.second.m_id);  //상대방에게 내 아이디
 		send_pc_login(p.second.m_id, p_id);
 	}
 	}
@@ -180,19 +142,28 @@ void process_packet(int p_id, unsigned char* packet)
 	case C2S_PACKET_MOVE:
 	{
 	c2s_packet_move* move_packet = reinterpret_cast<c2s_packet_move*>(packet);
+	//cout << move_packet->x <<" " << move_packet->y<< " " << move_packet->z<<endl;
+
+	players[p_id].character.x = move_packet->x;
+	players[p_id].character.y = move_packet->y;
+	players[p_id].character.z = move_packet->z;
+
+	players[p_id].character.yaw = move_packet->yaw;
+	players[p_id].character.pitch = move_packet->pitch;
+	players[p_id].character.roll = move_packet->roll;
+
+
 
 	for (auto& cl : players) {
 		if (false == cl.second.m_ingame) continue;
 		send_move_packet(cl.second.m_id, p_id);
+		
 	}
+
+	
 	}
 		break;
-	case C2S_PACKET_COLID:
-	{
-		c2s_packet_colid* colid_packet = reinterpret_cast<c2s_packet_colid*>(packet);
-		colid(p_id);
-	}
-	break;
+
 	default:
 		cout << "UNknown packet type[" << p->type << "] Error\n";
 		exit(1);
@@ -288,8 +259,6 @@ int main()
 			continue;
 		}
 
-		if (key < MAX_USER) {
-
 			EX_OVER* ex_over = reinterpret_cast<EX_OVER*>(over);
 
 			switch (ex_over->m_op) {
@@ -298,10 +267,9 @@ int main()
 				unsigned char* ps = ex_over->m_netbuf; //패킷의 시작주소
 				int remain_data = num_byte + players[key].m_prev_recv; //받은 데이터 + 처리하고 남은 데이터
 
-				while (true) {
+				while (remain_data > 0) {
 					int packet_size = ps[0];
 					if (packet_size > remain_data) break;
-
 
 					process_packet(key, ps);
 					remain_data -= packet_size;
@@ -335,9 +303,18 @@ int main()
 				n_s.m_prev_recv = 0;
 				n_s.m_recv_over.m_op = OP_RECV;
 				n_s.m_s = c_socket;
-				//n_s.character.x = 초기위치
-				//n_s.character.y = 초기위치
-				//n_s.character.z = 초기위치
+				n_s.character.x = -1620;
+				n_s.character.y = -29;
+				n_s.character.z = 117;
+
+				n_s.character.vx = 0;
+				n_s.character.vy = 0;
+				n_s.character.vz = 0;
+
+				n_s.character.yaw = 0;
+				n_s.character.pitch = 0;
+				n_s.character.roll = 0;
+
 				n_s.m_name[0] = 0;
 
 
@@ -356,10 +333,8 @@ int main()
 
 			}
 
-			//MonsterManagementThread(key); //몬스터 초기화및 실행
-
 			//cout << "New CLient [" << &clients[client_s].dataBuffer << "] :";
-		}
+		
 	}
 
 	closesocket(listenSocket);
@@ -380,101 +355,3 @@ void error_display(const char* msg, int err_no)
 	//while (true);
 	LocalFree(lpMsgBuf);
 }
-
-/*
-void InitializeGhostSet()
-{
-	// 몬스터 초기화 ex
-	Ghost mFields;
-
-	mFields.X = -5746;
-	mFields.Y = 3736;
-	mFields.Z = 7362;
-	mFields.Health = 100.0f;
-	mFields.Id = 1;
-	mFields.MovePoint = 10.f;
-	Ghosts[mFields.Id] = mFields;
-
-	mFields.X = -5136;
-	mFields.Y = 1026;
-	mFields.Z = 7712;
-	mFields.Id = 2;
-	Ghosts[mFields.Id] = mFields;
-
-	mFields.X = -3266;
-	mFields.Y = 286;
-	mFields.Z = 8232;
-	mFields.Id = 3;
-	Ghosts[mFields.Id] = mFields;
-
-	mFields.X = -156;
-	mFields.Y = 326;
-	mFields.Z = 8352;
-	mFields.Id = 4;
-	Ghosts[mFields.Id] = mFields;
-}
-*/
-
-/*
-void CreateMonsterManagementThread() //서버 시작할 때 만들어짐
-{
-	unsigned int threadId;
-
-	MonsterHandle = (HANDLE*)_beginthreadex(
-		NULL, 0, &CallMonsterThread, this, CREATE_SUSPENDED, &threadId
-	);
-	if (MonsterHandle == NULL)
-	{
-		printf_s("[ERROR] Monster Thread 생성 실패\n");
-		return;
-	}
-	ResumeThread(MonsterHandle);
-
-	printf_s("[INFO] Monster Thread 시작...\n");
-}
-*/
-
-/*
-void MonsterManagementThread(int p_id)
-{
-	// 몬스터 초기화
-	InitializeGhostSet();
-	int count = 0;
-	// 로직 시작
-	while (true)
-	{
-		for (auto& kvp : Ghosts)
-		{
-			auto& monster = kvp.second;
-			for (auto& player : players)
-			{
-				// 플레이어나 몬스터가 죽어있을 땐 무시
-				if (!player.second.character.isalive || !monster.IsAlive())
-					continue;
-
-				if (monster.IsPlayerInHitRange(player.second.character) && !monster.bIsAttacking)
-				{
-					monster.HitPlayer(player.second.character);
-					continue;
-				}
-
-				if (monster.IsPlayerInTraceRange(player.second.character) && !monster.bIsAttacking)
-				{
-					monster.MoveTo(player.second.character);
-					continue;
-				}
-			}
-		}
-
-		count++;
-		// 0.5초마다 클라이언트에게 몬스터 정보 전송
-		if (count > 15)
-		{
-			//send
-			send_ghost_packet(p_id);
-		}
-
-		Sleep(33);
-	}
-}
-*/

@@ -4,6 +4,7 @@
 constexpr int MAX_NAME = 50;
 
 constexpr int MAX_BUFFER = 1024;
+constexpr int MAX_PACKET_SIZE = 255;
 constexpr short SERVER_PORT = 3800;
 constexpr int BOARD_WIDTH = 8;
 constexpr int BOARD_HEIGHT = 8;

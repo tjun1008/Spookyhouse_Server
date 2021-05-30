@@ -31,8 +31,6 @@ struct CharacterPacket {
 	int skill_gage;
 	bool isalive = true;
 
-	SOCKET sock;
-
 };
 
 enum OP_TYPE { OP_RECV, OP_SEND, OP_ACCEPT };

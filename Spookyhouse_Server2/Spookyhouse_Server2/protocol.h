@@ -45,7 +45,7 @@ struct c2s_packet_move {
 	// Á¤º¸
 	float x, y, z;
 	float yaw, pitch, roll;
-	//float vx, vy, vz;
+	float vx, vy, vz;
 
 	//char dir; // 0 : UP 1: RIGHT 2:DOWN 3: LEFT
 };
@@ -86,7 +86,7 @@ struct s2c_packet_pc_move
 	int id;
 	float x, y,z;
 	float yaw, pitch, roll;
-	//float vx, vy, vz;
+	float vx, vy, vz;
 
 };
 

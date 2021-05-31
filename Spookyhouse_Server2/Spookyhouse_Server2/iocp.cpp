@@ -35,6 +35,9 @@ void send_move_packet(int c_id, int p_id)
 	packet.roll = players[p_id].character.roll;
 	packet.yaw = players[p_id].character.yaw;
 
+	packet.vx = players[p_id].character.vx;
+	packet.vy = players[p_id].character.vy;
+	packet.vz = players[p_id].character.vz;
 
 	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
@@ -167,7 +170,9 @@ void process_packet(int p_id, unsigned char* packet)
 	players[p_id].character.pitch = move_packet->pitch;
 	players[p_id].character.roll = move_packet->roll;
 
-
+	players[p_id].character.vx = move_packet->vx;
+	players[p_id].character.vy = move_packet->vy;
+	players[p_id].character.vz = move_packet->vz;
 
 	for (auto& cl : players) {
 		if (false == cl.second.m_ingame) continue;

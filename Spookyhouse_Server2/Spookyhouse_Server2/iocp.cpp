@@ -128,6 +128,21 @@ void process_packet(int p_id, unsigned char* packet)
 	case C2S_PACKET_LOGIN:
 	{
 	strcpy_s(players[p_id].m_name, p->name);
+
+	players[p_id].character.x = -1620;
+	players[p_id].character.y = -29;
+	players[p_id].character.z = 117;
+
+	players[p_id].character.vx = 0;
+	players[p_id].character.vy = 0;
+	players[p_id].character.vz = 0;
+
+	players[p_id].character.yaw = 0;
+	players[p_id].character.pitch = 0;
+	players[p_id].character.roll = 0;
+
+	//플레이어 정보 초기화
+
 	send_login_info(p_id);
 	players[p_id].m_ingame = true;
 
@@ -142,7 +157,7 @@ void process_packet(int p_id, unsigned char* packet)
 	case C2S_PACKET_MOVE:
 	{
 	c2s_packet_move* move_packet = reinterpret_cast<c2s_packet_move*>(packet);
-	//cout << move_packet->x <<" " << move_packet->y<< " " << move_packet->z<<endl;
+    //cout << move_packet->x <<" " << move_packet->y<< " " << move_packet->z<<endl;
 
 	players[p_id].character.x = move_packet->x;
 	players[p_id].character.y = move_packet->y;
@@ -295,27 +310,12 @@ int main()
 					do_accept(listenSocket, &c_socket, &a_over);
 					continue;
 				}
-				SESSION t;
-				t.m_ingame = false;
-				players[p_id] = t; //가능하면 클래스로 처리
-				SESSION& n_s = players[p_id];
-				n_s.m_id = p_id;
-				n_s.m_prev_recv = 0;
-				n_s.m_recv_over.m_op = OP_RECV;
-				n_s.m_s = c_socket;
-				n_s.character.x = -1620;
-				n_s.character.y = -29;
-				n_s.character.z = 117;
 
-				n_s.character.vx = 0;
-				n_s.character.vy = 0;
-				n_s.character.vz = 0;
-
-				n_s.character.yaw = 0;
-				n_s.character.pitch = 0;
-				n_s.character.roll = 0;
-
-				n_s.m_name[0] = 0;
+				players[p_id].m_id = p_id;
+				players[p_id].m_ingame = false;
+				players[p_id].m_prev_recv = 0;
+				players[p_id].m_recv_over.m_op = OP_RECV;
+				players[p_id].m_s = c_socket;
 
 
 				CreateIoCompletionPort(reinterpret_cast<HANDLE>(c_socket), h_iocp, p_id, 0);

@@ -40,7 +40,7 @@ void Ghost::HitPlayer(CharacterPacket& target)
 		// 1초에 한번씩 때리도록		
 		bIsAttacking = true;
 		printf_s("때림\n");
-		target.hp -= HitPoint;
+		//target.hp -= HitPoint;
 		std::this_thread::sleep_for(1s);
 		bIsAttacking = false;
 		});

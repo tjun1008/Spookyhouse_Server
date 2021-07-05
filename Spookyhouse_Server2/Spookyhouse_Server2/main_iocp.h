@@ -3,15 +3,23 @@
 #include "protocol.h"
 
 #include <iostream>
-#include <map>
+#include <array>
+#include <vector>
+#include <thread>
+#include <mutex>
+#include <unordered_set>
+
 using namespace std;
+
 #include <WS2tcpip.h>
 #include <MSWSock.h>
 
-
-
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib,"MSWSock.lib")
+
+constexpr int NUM_THREADS = 4;
+
+enum S_STATE { STATE_FREE, STATE_CONNECTED, STATE_INGAME };
 
 struct CharacterPacket {
 
@@ -26,11 +34,14 @@ struct CharacterPacket {
 	// 속도
 	short vx, vy, vz;
 
-	// etc
-	int hp;
-	int skill_gage;
-	bool isalive = true;
+	//lobby
+	bool host;
+	bool ready;
 
+
+	// etc
+	bool flashlight;
+	
 };
 
 enum OP_TYPE { OP_RECV, OP_SEND, OP_ACCEPT };
@@ -40,6 +51,7 @@ struct EX_OVER {
 	WSABUF m_wsabuf[1];
 	unsigned char m_netbuf[MAX_BUFFER]; //실제 데이터 받는 버퍼, IOCP send/recv 버퍼
 	OP_TYPE m_op; // Send/Recv/Accept 구별
+	SOCKET m_csocket;
 };
 
 struct SESSION
@@ -49,10 +61,17 @@ struct SESSION
 	unsigned char m_prev_recv; //남은 데이터, recv 시작 위치
 	SOCKET m_s;
 
-	bool m_ingame;
+	//bool m_ingame;
+	atomic<S_STATE>	m_state; // 0. free 1. connected 2. ingame
+	mutex m_lock;
 	char m_name[MAX_NAME];
 	CharacterPacket character; //수정예정
+	bool is_close_door[22];
+	bool is_keypad;
+	bool is_escape;
+
+	unordered_set<int> m_viewlist; //순서없을때 더 빠르므로 사용
+	mutex m_vl;
 };
 
-void error_display(const char* msg, int err_no);
 

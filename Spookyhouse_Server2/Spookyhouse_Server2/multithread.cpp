@@ -211,13 +211,13 @@ void send_object_packet(int c_id, int p_id)
 	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
 
-void send_chat(int c_id, int p_id, const char* mess)
+void send_chat(int c_id, int p_id, wchar_t mess[])
 {
 	s2c_packet_chat p;
 	p.id = p_id;
 	p.size = sizeof(p);
 	p.type = S2C_PACKET_CHAT;
-	strcpy_s(p.message, mess);
+	wcscpy_s(p.message, mess);
 	send_packet(c_id, &p);
 }
 
@@ -545,12 +545,13 @@ void process_packet(int p_id, unsigned char* packet)
 		c2s_packet_object* object_packet = reinterpret_cast<c2s_packet_object*>(packet);
 
 		/*
-		for (int i = 0; i < 24; ++i)
+		for (int i = 0; i < 22; ++i)
 		{
 			cout << object_packet->is_close_door[i] << ", ";
 		}
 		cout << endl;
 		*/
+
 		for (int i = 0; i < 22; ++i)
 		{
 			Clients[p_id].is_close_door[i] = object_packet->is_close_door[i];
@@ -594,7 +595,7 @@ void process_packet(int p_id, unsigned char* packet)
 
 				
 		}
-		//cout << chat_packet->message << endl;
+		wcout << chat_packet->message << endl;
 		send_chat(p_id, p_id, chat_packet->message); //나에게
 	}
 				break;
@@ -684,9 +685,10 @@ void worker()
 int main()
 {
 
-	std::locale::global(std::locale("ko_KR.UTF-8"));
+	//std::locale::global(std::locale("korean"));
+	SetConsoleOutputCP(CP_UTF8);
 
-	//wcout.imbue(locale("korean"));
+	wcout.imbue(locale("korean"));
 
 
 	init_server();

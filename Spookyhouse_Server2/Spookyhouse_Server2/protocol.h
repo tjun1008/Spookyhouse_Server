@@ -87,7 +87,7 @@ struct c2s_packet_object {
 struct c2s_packet_chat {
 	unsigned char	size;
 	char	type;
-	char 	message[MAX_STR_LEN];
+	wchar_t 	message[MAX_STR_LEN];
 };
 
 struct  s2c_packet_lobby
@@ -170,7 +170,7 @@ struct s2c_packet_chat {
 	unsigned char size;
 	char	type;
 	int	id;
-	char	message[MAX_STR_LEN];
+	wchar_t	message[MAX_STR_LEN];
 };
 
 struct s2c_packet_pc_logout

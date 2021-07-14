@@ -8,6 +8,9 @@
 #include <thread>
 #include <mutex>
 #include <unordered_set>
+#include <fstream>
+#include <time.h>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -67,6 +70,7 @@ struct SESSION
 	char m_name[MAX_NAME];
 	CharacterPacket character; //수정예정
 	bool is_close_door[22];
+	bool is_close_closet_left[6];
 	bool is_keypad;
 	bool is_escape;
 
@@ -74,4 +78,7 @@ struct SESSION
 	mutex m_vl;
 };
 
-
+struct KeyLocation
+{
+	float x, y, z;
+};

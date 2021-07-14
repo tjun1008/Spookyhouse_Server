@@ -7,6 +7,7 @@ SOCKET listenSocket;
 HANDLE h_iocp;
 int cur_player = 0;
 bool bIsgameStart = false;
+KeyLocation firstf_key, bf_key, secf_key;
 
 void display_error(const char* msg, int err_no)
 {
@@ -66,6 +67,63 @@ void client_init()
 		pl.m_state = STATE_FREE;
 
 	}
+}
+
+void key_init()
+{
+	//탈출키 초기화
+	KeyLocation loc1[6]; // = { {730, -1870, 70},{799, -1870, 70},{1661, -2061, 89},{1661, -1983, 70},{1428, 1512, 145},{1587, 1519, 144} };
+	KeyLocation loc2[9];
+	KeyLocation loc3[12];
+
+	ifstream file;
+
+	file.open("KeyLocation.txt");
+
+	if (file.is_open() == false)
+	{
+		cout << "파일을 열지 못했습니다" << endl;
+	}
+	for (int i = 0; i < 6; ++i)
+	{
+		file >> loc1[i].x >> loc1[i].y >> loc1[i].z;
+	}
+
+	for (int i = 0; i < 9; ++i)
+	{
+		file >> loc2[i].x >> loc2[i].y >> loc2[i].z;
+	}
+
+	for (int i = 0; i < 12; ++i)
+	{
+		file >> loc3[i].x >> loc3[i].y >> loc3[i].z;
+	}
+// 파일불러오기 확인 완료
+
+	srand(time(NULL));
+
+	int x1, x2, x3;
+
+	x1 = rand() % 6;
+	x2 = rand() % 9;
+	x3 = rand() % 12;
+
+	firstf_key.x = loc1[x1].x;
+	firstf_key.y = loc1[x1].y;
+	firstf_key.z = loc1[x1].z;
+
+	bf_key.x = loc2[x2].x;
+	bf_key.y = loc2[x2].y;
+	bf_key.z = loc2[x2].z;
+
+	secf_key.x = loc3[x3].x;
+	secf_key.y = loc3[x3].y;
+	secf_key.z = loc3[x3].z;
+
+	cout << firstf_key.x << " " << firstf_key.y << " " << firstf_key.z << endl;
+	cout << bf_key.x << " " << bf_key.y << " " << bf_key.z << endl;
+	cout << secf_key.x << " " << secf_key.y << " " << secf_key.z << endl;
+
 }
 
 void send_packet(int p_id, void* buf)
@@ -164,6 +222,26 @@ void send_start(int p_id)
 	send_packet(p_id, &p);
 }
 
+void send_key_info(int p_id)
+{
+	s2c_packet_key_info p;
+	p.size = sizeof(p);
+	p.type = S2C_PACKET_KEY_INFO;
+	p.firstf_x = firstf_key.x;
+	p.firstf_y = firstf_key.y;
+	p.firstf_z = firstf_key.z;
+
+	p.bf_x = bf_key.x;
+	p.bf_y = bf_key.y;
+	p.bf_z = bf_key.z;
+
+	p.secf_x = secf_key.x;
+	p.secf_y = secf_key.y;
+	p.secf_z = secf_key.z;
+
+	send_packet(p_id, &p);
+}
+
 void send_move_packet(int c_id, int p_id)
 {
 	s2c_packet_pc_move packet;
@@ -195,11 +273,18 @@ void send_object_packet(int c_id, int p_id)
 	packet.size = sizeof(packet);
 	packet.type = S2C_PACKET_OBJECT;
 
-	for (int i = 0; i < 22; ++i)
+	for (int i = 0; i < 21; ++i)
 	{
 		packet.is_close_door[i] = Clients[p_id].is_close_door[i];
 
 		//cout << packet.is_close_door[i] << ", ";
+	}
+
+	for (int i = 0; i < 6; ++i)
+	{
+		packet.is_close_closet_left[i] = Clients[p_id].is_close_closet_left[i];
+		//cout << packet.is_close_closet_left[i] << ", ";
+		//cout << endl;
 	}
 
 	packet.is_close_keypad = Clients[p_id].is_keypad;
@@ -219,6 +304,18 @@ void send_chat(int c_id, int p_id, wchar_t mess[])
 	p.type = S2C_PACKET_CHAT;
 	wcscpy_s(p.message, mess);
 	send_packet(c_id, &p);
+}
+
+void send_key_packet(int c_id, int p_id, int Escapekey, int numofkey)
+{
+	s2c_packet_key packet;
+	packet.id = p_id;
+	packet.size = sizeof(packet);
+	packet.type = S2C_PACKET_KEY;
+	packet.escape_key = Escapekey;
+	packet.num_key = numofkey;
+
+	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
 
 void send_pc_logout(int c_id, int p_id)
@@ -385,60 +482,7 @@ void process_packet(int p_id, unsigned char* packet)
 			send_pc_lobby(pl.m_id, p_id);
 			send_pc_lobby(p_id, pl.m_id);
 		}
-		/*
-		Clients[p_id].character.x = -1620;
-		Clients[p_id].character.y = -29;
-		Clients[p_id].character.z = 117;
 
-		Clients[p_id].character.vx = 0;
-		Clients[p_id].character.vy = 0;
-		Clients[p_id].character.vz = 0;
-
-		Clients[p_id].character.yaw = 0;
-		Clients[p_id].character.pitch = 0;
-		Clients[p_id].character.roll = 0;
-
-		Clients[p_id].character.flashlight = true;
-
-		//플레이어 정보 초기화
-		send_login_info(p_id);
-		Clients[p_id].m_state = STATE_INGAME;
-
-
-
-		for (auto& p : Clients) {
-			if (p.m_id == p_id) continue;
-			lock_guard<mutex> guard1{ p.m_lock };
-			//p.m_lock.lock();
-			if (p.m_state != STATE_INGAME)
-			{
-				//p.m_lock.unlock();
-				continue;
-			}
-
-			if (can_see(p_id, p.m_id))
-			{
-
-
-				Clients[p_id].m_vl.lock();
-				Clients[p_id].m_viewlist.insert(p.m_id);
-				Clients[p_id].m_vl.unlock();
-
-				send_pc_login(p.m_id, p_id);
-
-				p.m_vl.lock();
-				p.m_viewlist.insert(p_id);
-				send_pc_login(p_id, p.m_id);
-				p.m_vl.unlock();
-
-
-
-			}
-
-			//p.m_lock.unlock();
-		}
-
-		*/
 	}
 		break;
 
@@ -497,7 +541,8 @@ void process_packet(int p_id, unsigned char* packet)
 		if(bIsgameStart == true)
 		{ 
 			send_start(p_id); //상대방에게
-			
+			send_key_info(p_id);
+
 		for (auto& pl : Clients)
 		{
 			if (pl.m_id == p_id) continue;
@@ -506,7 +551,9 @@ void process_packet(int p_id, unsigned char* packet)
 			{
 				continue;
 			}
-
+			send_start(pl.m_id); //상대방에게
+			send_key_info(pl.m_id);
+			/*
 			Clients[pl.m_id].character.x = -1620;
 			Clients[pl.m_id].character.y = -29;
 			Clients[pl.m_id].character.z = 117;
@@ -523,11 +570,16 @@ void process_packet(int p_id, unsigned char* packet)
 
 			//플레이어 정보 초기화
 			//send_login_info(pl.m_id);
-
-			send_start(pl.m_id); //상대방에게
+			cout << "p_id : " << p_id << "pl.id: " << pl.m_id << endl;
 
 			send_pc_login(p_id, pl.m_id);
 			send_pc_login(pl.m_id, p_id);
+			
+			*/
+
+			
+
+			
 		}
 
 		}
@@ -536,8 +588,46 @@ void process_packet(int p_id, unsigned char* packet)
 						 break;
 	case C2S_PACKET_MOVE: {
 		c2s_packet_move* move_packet = reinterpret_cast<c2s_packet_move*>(packet);
-		
+
 		player_move(p_id, move_packet);
+	}
+						break;
+	case C2S_PACKET_PLAYER_INFO: {
+		c2s_packet_playerinfo* info_packet = reinterpret_cast<c2s_packet_playerinfo*>(packet);
+		
+		Clients[p_id].character.x = -1620;
+		Clients[p_id].character.y = -29;
+		Clients[p_id].character.z = 117;
+
+		Clients[p_id].character.vx = 0;
+		Clients[p_id].character.vy = 0;
+		Clients[p_id].character.vz = 0;
+
+		Clients[p_id].character.yaw = 0;
+		Clients[p_id].character.pitch = 0;
+		Clients[p_id].character.roll = 0;
+
+		Clients[p_id].character.flashlight = true;
+
+		for (auto& pl : Clients)
+		{
+			if (pl.m_id == p_id) continue;
+
+			if (STATE_INGAME != pl.m_state)
+			{
+				continue;
+			}
+
+
+			send_pc_login(p_id, pl.m_id);
+			send_pc_login(pl.m_id, p_id);
+
+			
+
+		}
+
+		
+		
 	}
 						break;
 
@@ -545,16 +635,23 @@ void process_packet(int p_id, unsigned char* packet)
 		c2s_packet_object* object_packet = reinterpret_cast<c2s_packet_object*>(packet);
 
 		/*
-		for (int i = 0; i < 22; ++i)
+		for (int i = 0; i < 6; ++i)
 		{
-			cout << object_packet->is_close_door[i] << ", ";
+			cout << object_packet->is_close_closet_left[i] << ", ";
 		}
 		cout << endl;
 		*/
 
-		for (int i = 0; i < 22; ++i)
+		//cout << "object 확인" << endl;
+
+		for (int i = 0; i < 21; ++i)
 		{
 			Clients[p_id].is_close_door[i] = object_packet->is_close_door[i];
+		}
+
+		for (int i = 0; i < 6; ++i)
+		{
+			Clients[p_id].is_close_closet_left[i] = object_packet->is_close_closet_left[i];
 		}
 		
 		Clients[p_id].is_keypad = object_packet->is_close_keypad;
@@ -599,6 +696,35 @@ void process_packet(int p_id, unsigned char* packet)
 		send_chat(p_id, p_id, chat_packet->message); //나에게
 	}
 				break;
+
+	case C2S_PACKET_KEY: {
+		c2s_packet_key* key_packet = reinterpret_cast<c2s_packet_key*>(packet);
+
+		/*
+		int ekey = key_packet->escape_key;
+		int numkey = key_packet->num_key;
+
+		cout << "ekey: " << ekey << "numkey: " << numkey << endl;
+		*/
+			
+		for (auto& pl : Clients)
+		{
+			if (pl.m_id == p_id) continue;
+
+			if (STATE_INGAME != pl.m_state)
+			{
+				//cl.m_lock.unlock();
+				continue;
+			}
+
+			send_key_packet(pl.m_id, p_id, key_packet->escape_key, key_packet->num_key); //상대방에게
+
+
+		}
+		//send_key_packet(p_id, p_id, key_packet->escape_key, key_packet->num_key); //나에게
+		
+	}
+						break;
 	default:
 		cout << "Unknown Packet Type [" << p->type << "] Error\n";
 		exit(-1);
@@ -685,11 +811,13 @@ void worker()
 int main()
 {
 
-	//std::locale::global(std::locale("korean"));
-	SetConsoleOutputCP(CP_UTF8);
+	std::locale::global(std::locale("korean"));
+	//SetConsoleOutputCP(CP_UTF8);
 
 	wcout.imbue(locale("korean"));
 
+	key_init();
+	cout << "key 초기화 완료" << endl;
 
 	init_server();
 

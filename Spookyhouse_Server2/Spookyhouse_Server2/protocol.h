@@ -19,27 +19,30 @@ constexpr int VIEW_RADIUS = 1000;
 
 
 
-
-
 // IOCP 소켓 구조체
 
 
 constexpr unsigned char C2S_PACKET_LOGIN = 1;
 constexpr unsigned char C2S_PACKET_READY = 2;
 constexpr unsigned char C2S_PACKET_START_CLICK = 3;
-constexpr unsigned char C2S_PACKET_MOVE = 4;
-constexpr unsigned char C2S_PACKET_OBJECT = 5;
-constexpr unsigned char C2S_PACKET_CHAT = 6;
+constexpr unsigned char C2S_PACKET_PLAYER_INFO = 4;
+constexpr unsigned char C2S_PACKET_MOVE = 5;
+constexpr unsigned char C2S_PACKET_OBJECT = 6;
+constexpr unsigned char C2S_PACKET_CHAT = 7;
+constexpr unsigned char C2S_PACKET_KEY = 8;
 
-constexpr unsigned char S2C_PACKET_LOBBY = 7;
-constexpr unsigned char S2C_PACKET_READY = 8;
-constexpr unsigned char S2C_PACKET_GAME_START = 9;
-constexpr unsigned char S2C_PACKET_LOGIN_INFO = 10;
-constexpr unsigned char S2C_PACKET_PC_LOGIN = 11;
-constexpr unsigned char S2C_PACKET_PC_MOVE = 12;
-constexpr unsigned char S2C_PACKET_OBJECT = 13;
-constexpr unsigned char S2C_PACKET_CHAT = 14;
-constexpr unsigned char S2C_PACKET_PC_LOGOUT = 15;
+constexpr unsigned char S2C_PACKET_LOBBY = 9;
+constexpr unsigned char S2C_PACKET_READY = 10;
+constexpr unsigned char S2C_PACKET_GAME_START = 11;
+constexpr unsigned char S2C_PACKET_LOGIN_INFO = 12;
+constexpr unsigned char S2C_PACKET_KEY_INFO = 13;
+constexpr unsigned char S2C_PACKET_PC_LOGIN = 14;
+constexpr unsigned char S2C_PACKET_PC_MOVE = 15;
+constexpr unsigned char S2C_PACKET_OBJECT = 16;
+constexpr unsigned char S2C_PACKET_CHAT = 17;
+constexpr unsigned char S2C_PACKET_KEY = 18;
+constexpr unsigned char S2C_PACKET_PC_LOGOUT = 19;
+
 
 #pragma pack (push,1) //공백이 생기는걸 막아야함
 
@@ -61,6 +64,12 @@ struct c2s_packet_start {
 	bool start;
 };
 
+struct c2s_packet_playerinfo {
+	unsigned char size;
+	unsigned char type;
+	//char name[MAX_NAME];
+};
+
 struct c2s_packet_move {
 	unsigned char size;
 	unsigned char type;
@@ -79,7 +88,8 @@ struct c2s_packet_object {
 	unsigned char size;
 	unsigned char type;
 
-	bool is_close_door[22];
+	bool is_close_door[21];
+	bool is_close_closet_left[6];
 	bool is_close_keypad;
 	bool is_open_escape;
 };
@@ -87,7 +97,15 @@ struct c2s_packet_object {
 struct c2s_packet_chat {
 	unsigned char	size;
 	char	type;
-	wchar_t 	message[MAX_STR_LEN];
+	wchar_t  	message[MAX_STR_LEN];
+};
+
+struct c2s_packet_key {
+	unsigned char size;
+	unsigned char type;
+
+	int num_key;
+	int escape_key;
 };
 
 struct  s2c_packet_lobby
@@ -132,6 +150,16 @@ struct  s2c_packet_login_info
 	bool flashlight;
 };
 
+struct  s2c_packet_key_info
+{
+	unsigned char size;
+	unsigned char type;
+
+	float firstf_x, firstf_y, firstf_z;
+	float bf_x, bf_y, bf_z;
+	float secf_x, secf_y, secf_z;
+};
+
 struct s2c_packet_pc_login
 {
 	unsigned char size;
@@ -162,6 +190,7 @@ struct s2c_packet_object
 	unsigned char type;
 	int id;
 	bool is_close_door[22];
+	bool is_close_closet_left[6];
 	bool is_close_keypad;
 	bool is_open_escape;
 };
@@ -170,7 +199,16 @@ struct s2c_packet_chat {
 	unsigned char size;
 	char	type;
 	int	id;
-	wchar_t	message[MAX_STR_LEN];
+	wchar_t 	message[MAX_STR_LEN];
+};
+
+struct s2c_packet_key {
+	unsigned char size;
+	char	type;
+	int	id;
+
+	int num_key;
+	int escape_key;
 };
 
 struct s2c_packet_pc_logout

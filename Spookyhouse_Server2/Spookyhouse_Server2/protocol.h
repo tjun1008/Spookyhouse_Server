@@ -30,18 +30,20 @@ constexpr unsigned char C2S_PACKET_MOVE = 5;
 constexpr unsigned char C2S_PACKET_OBJECT = 6;
 constexpr unsigned char C2S_PACKET_CHAT = 7;
 constexpr unsigned char C2S_PACKET_KEY = 8;
+constexpr unsigned char C2S_PACKET_KEY_VISIBLE = 9;
 
-constexpr unsigned char S2C_PACKET_LOBBY = 9;
-constexpr unsigned char S2C_PACKET_READY = 10;
-constexpr unsigned char S2C_PACKET_GAME_START = 11;
-constexpr unsigned char S2C_PACKET_LOGIN_INFO = 12;
-constexpr unsigned char S2C_PACKET_KEY_INFO = 13;
-constexpr unsigned char S2C_PACKET_PC_LOGIN = 14;
-constexpr unsigned char S2C_PACKET_PC_MOVE = 15;
-constexpr unsigned char S2C_PACKET_OBJECT = 16;
-constexpr unsigned char S2C_PACKET_CHAT = 17;
-constexpr unsigned char S2C_PACKET_KEY = 18;
-constexpr unsigned char S2C_PACKET_PC_LOGOUT = 19;
+constexpr unsigned char S2C_PACKET_LOBBY = 10;
+constexpr unsigned char S2C_PACKET_READY = 11;
+constexpr unsigned char S2C_PACKET_GAME_START = 12;
+constexpr unsigned char S2C_PACKET_LOGIN_INFO = 13;
+constexpr unsigned char S2C_PACKET_KEY_INFO = 14;
+constexpr unsigned char S2C_PACKET_PC_LOGIN = 15;
+constexpr unsigned char S2C_PACKET_PC_MOVE = 16;
+constexpr unsigned char S2C_PACKET_OBJECT = 17;
+constexpr unsigned char S2C_PACKET_CHAT = 18;
+constexpr unsigned char S2C_PACKET_KEY = 19;
+constexpr unsigned char S2C_PACKET_KEY_VISIBLE = 20;
+constexpr unsigned char S2C_PACKET_PC_LOGOUT = 21;
 
 
 #pragma pack (push,1) //공백이 생기는걸 막아야함
@@ -90,6 +92,9 @@ struct c2s_packet_object {
 
 	bool is_close_door[21];
 	bool is_close_closet_left[6];
+	bool is_close_closet_right[6];
+	bool is_close_drawer[8];
+	bool is_close_refriger[8];
 	bool is_close_keypad;
 	bool is_open_escape;
 };
@@ -106,6 +111,14 @@ struct c2s_packet_key {
 
 	int num_key;
 	int escape_key;
+};
+
+struct c2s_packet_key_visible {
+	unsigned char size;
+	unsigned char type;
+
+	bool get_escapekey[3];
+	bool get_objectkey[11];
 };
 
 struct  s2c_packet_lobby
@@ -191,6 +204,9 @@ struct s2c_packet_object
 	int id;
 	bool is_close_door[22];
 	bool is_close_closet_left[6];
+	bool is_close_closet_right[6];
+	bool is_close_drawer[8];
+	bool is_close_refriger[8];
 	bool is_close_keypad;
 	bool is_open_escape;
 };
@@ -209,6 +225,14 @@ struct s2c_packet_key {
 
 	int num_key;
 	int escape_key;
+};
+
+struct s2c_packet_key_visible {
+	unsigned char size;
+	unsigned char type;
+
+	bool get_escapekey[3];
+	bool get_objectkey[11];
 };
 
 struct s2c_packet_pc_logout

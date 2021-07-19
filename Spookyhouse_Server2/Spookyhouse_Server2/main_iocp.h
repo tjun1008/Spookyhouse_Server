@@ -57,6 +57,16 @@ struct EX_OVER {
 	SOCKET m_csocket;
 };
 
+struct OBJECT {
+	bool is_close_door[22];
+	bool is_close_closet_left[6];
+	bool is_close_closet_right[6];
+	bool is_close_drawer[6];
+	bool is_close_refriger[6];
+	bool is_keypad;
+	bool is_escape;
+};
+
 struct SESSION
 {
 	int m_id;
@@ -69,11 +79,10 @@ struct SESSION
 	mutex m_lock;
 	char m_name[MAX_NAME];
 	CharacterPacket character; //수정예정
-	bool is_close_door[22];
-	bool is_close_closet_left[6];
-	bool is_keypad;
-	bool is_escape;
 
+	OBJECT object;
+	bool escape_key[3];
+	bool object_key[11];
 	unordered_set<int> m_viewlist; //순서없을때 더 빠르므로 사용
 	mutex m_vl;
 };

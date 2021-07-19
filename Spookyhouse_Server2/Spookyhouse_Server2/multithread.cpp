@@ -275,20 +275,34 @@ void send_object_packet(int c_id, int p_id)
 
 	for (int i = 0; i < 21; ++i)
 	{
-		packet.is_close_door[i] = Clients[p_id].is_close_door[i];
+		packet.is_close_door[i] = Clients[p_id].object.is_close_door[i];
 
 		//cout << packet.is_close_door[i] << ", ";
 	}
 
 	for (int i = 0; i < 6; ++i)
 	{
-		packet.is_close_closet_left[i] = Clients[p_id].is_close_closet_left[i];
+		packet.is_close_closet_left[i] = Clients[p_id].object.is_close_closet_left[i];
+		packet.is_close_closet_right[i] = Clients[p_id].object.is_close_closet_right[i];
 		//cout << packet.is_close_closet_left[i] << ", ";
 		//cout << endl;
 	}
 
-	packet.is_close_keypad = Clients[p_id].is_keypad;
-	packet.is_open_escape = Clients[p_id].is_escape;
+	for (int i = 0; i < 8; ++i)
+	{
+		packet.is_close_drawer[i] = Clients[p_id].object.is_close_drawer[i];
+	}
+
+	for (int i = 0; i < 4; ++i)
+	{
+		packet.is_close_refriger[i] = Clients[p_id].object.is_close_refriger[i];
+
+	//cout << packet.is_close_refriger[i] << ", ";
+	//cout << endl;
+	}
+
+	packet.is_close_keypad = Clients[p_id].object.is_keypad;
+	packet.is_open_escape = Clients[p_id].object.is_escape;
 	//cout << endl;
 
 
@@ -314,6 +328,29 @@ void send_key_packet(int c_id, int p_id, int Escapekey, int numofkey)
 	packet.type = S2C_PACKET_KEY;
 	packet.escape_key = Escapekey;
 	packet.num_key = numofkey;
+
+	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
+}
+
+void send_key_visible_packet(int c_id, int p_id)
+{
+	s2c_packet_key_visible packet;
+	packet.size = sizeof(packet);
+	packet.type = S2C_PACKET_KEY_VISIBLE;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		packet.get_escapekey[i] = Clients[p_id].escape_key[i];
+
+		//cout << packet.get_escapekey[i] << ", "; //1 0 0
+	}
+
+	for (int i = 0; i < 11; ++i)
+	{
+		packet.get_objectkey[i] = Clients[p_id].object_key[i];
+
+		//cout << packet.get_objectkey[i] << ", "; //1 0 0
+	}
 
 	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
@@ -646,16 +683,27 @@ void process_packet(int p_id, unsigned char* packet)
 
 		for (int i = 0; i < 21; ++i)
 		{
-			Clients[p_id].is_close_door[i] = object_packet->is_close_door[i];
+			Clients[p_id].object.is_close_door[i] = object_packet->is_close_door[i];
 		}
 
 		for (int i = 0; i < 6; ++i)
 		{
-			Clients[p_id].is_close_closet_left[i] = object_packet->is_close_closet_left[i];
+			Clients[p_id].object.is_close_closet_left[i] = object_packet->is_close_closet_left[i];
+			Clients[p_id].object.is_close_closet_right[i] = object_packet->is_close_closet_right[i];
+		}
+
+		for (int i = 0; i < 8; ++i)
+		{
+			Clients[p_id].object.is_close_drawer[i] = object_packet->is_close_drawer[i];
+		}
+
+		for (int i = 0; i < 4; ++i)
+		{
+			Clients[p_id].object.is_close_refriger[i] = object_packet->is_close_refriger[i];
 		}
 		
-		Clients[p_id].is_keypad = object_packet->is_close_keypad;
-		Clients[p_id].is_escape = object_packet->is_open_escape;
+		Clients[p_id].object.is_keypad = object_packet->is_close_keypad;
+		Clients[p_id].object.is_escape = object_packet->is_open_escape;
 
 		for (auto& cl : Clients) {
 			if (cl.m_id == p_id) continue;
@@ -725,6 +773,38 @@ void process_packet(int p_id, unsigned char* packet)
 		
 	}
 						break;
+
+	case C2S_PACKET_KEY_VISIBLE: {
+		c2s_packet_key_visible* key_visible_packet = reinterpret_cast<c2s_packet_key_visible*>(packet);
+
+		for (int i = 0; i < 3; ++i)
+		{
+			Clients[p_id].escape_key[i] = key_visible_packet->get_escapekey[i];
+		}
+
+		for (int i = 0; i < 11; ++i)
+		{
+			Clients[p_id].object_key[i] = key_visible_packet->get_objectkey[i];
+		}
+
+		for (auto& pl : Clients)
+		{
+			if (pl.m_id == p_id) continue;
+
+			if (STATE_INGAME != pl.m_state)
+			{
+				//cl.m_lock.unlock();
+				continue;
+			}
+
+			send_key_visible_packet(pl.m_id, p_id); //상대방에게
+
+
+		}
+		//send_key_packet(p_id, p_id, key_packet->escape_key, key_packet->num_key); //나에게
+
+	}
+					   break;
 	default:
 		cout << "Unknown Packet Type [" << p->type << "] Error\n";
 		exit(-1);

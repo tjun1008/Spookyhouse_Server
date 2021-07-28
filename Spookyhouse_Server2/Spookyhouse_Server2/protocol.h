@@ -28,22 +28,26 @@ constexpr unsigned char C2S_PACKET_START_CLICK = 3;
 constexpr unsigned char C2S_PACKET_PLAYER_INFO = 4;
 constexpr unsigned char C2S_PACKET_MOVE = 5;
 constexpr unsigned char C2S_PACKET_OBJECT = 6;
-constexpr unsigned char C2S_PACKET_CHAT = 7;
-constexpr unsigned char C2S_PACKET_KEY = 8;
-constexpr unsigned char C2S_PACKET_KEY_VISIBLE = 9;
+constexpr unsigned char C2S_PACKET_OTHEROBJECT = 7;
+constexpr unsigned char C2S_PACKET_BOXMOVE = 8;
+constexpr unsigned char C2S_PACKET_CHAT = 9;
+constexpr unsigned char C2S_PACKET_KEY = 10;
+constexpr unsigned char C2S_PACKET_KEY_VISIBLE = 11;
 
-constexpr unsigned char S2C_PACKET_LOBBY = 10;
-constexpr unsigned char S2C_PACKET_READY = 11;
-constexpr unsigned char S2C_PACKET_GAME_START = 12;
-constexpr unsigned char S2C_PACKET_LOGIN_INFO = 13;
-constexpr unsigned char S2C_PACKET_KEY_INFO = 14;
-constexpr unsigned char S2C_PACKET_PC_LOGIN = 15;
-constexpr unsigned char S2C_PACKET_PC_MOVE = 16;
-constexpr unsigned char S2C_PACKET_OBJECT = 17;
-constexpr unsigned char S2C_PACKET_CHAT = 18;
-constexpr unsigned char S2C_PACKET_KEY = 19;
-constexpr unsigned char S2C_PACKET_KEY_VISIBLE = 20;
-constexpr unsigned char S2C_PACKET_PC_LOGOUT = 21;
+constexpr unsigned char S2C_PACKET_LOBBY = 12;
+constexpr unsigned char S2C_PACKET_READY = 13;
+constexpr unsigned char S2C_PACKET_GAME_START = 14;
+constexpr unsigned char S2C_PACKET_LOGIN_INFO = 15;
+constexpr unsigned char S2C_PACKET_KEY_INFO = 16;
+constexpr unsigned char S2C_PACKET_PC_LOGIN = 17;
+constexpr unsigned char S2C_PACKET_PC_MOVE = 18;
+constexpr unsigned char S2C_PACKET_OBJECT = 19;
+constexpr unsigned char S2C_PACKET_OTHEROBJECT = 20;
+constexpr unsigned char S2C_PACKET_BOXMOVE = 21;
+constexpr unsigned char S2C_PACKET_CHAT = 22;
+constexpr unsigned char S2C_PACKET_KEY = 23;
+constexpr unsigned char S2C_PACKET_KEY_VISIBLE = 24;
+constexpr unsigned char S2C_PACKET_PC_LOGOUT = 25;
 
 
 #pragma pack (push,1) //공백이 생기는걸 막아야함
@@ -95,8 +99,30 @@ struct c2s_packet_object {
 	bool is_close_closet_right[6];
 	bool is_close_drawer[8];
 	bool is_close_refriger[8];
+	bool is_close_dryer[2];
+	bool is_close_lockbox;
 	bool is_close_keypad;
+	bool is_close_keycard;
 	bool is_open_escape;
+};
+
+struct c2s_packet_otherobject {
+	unsigned char size;
+	unsigned char type;
+
+	bool is_open_coffin;
+	bool get_robot;
+	bool get_baby;
+	bool is_open_board;
+	bool is_open_safedoor;
+};
+
+struct c2s_packet_boxmove {
+	unsigned char size;
+	unsigned char type;
+
+	float box_x, box_y, box_z;
+
 };
 
 struct c2s_packet_chat {
@@ -207,8 +233,30 @@ struct s2c_packet_object
 	bool is_close_closet_right[6];
 	bool is_close_drawer[8];
 	bool is_close_refriger[8];
+	bool is_close_dryer[2];
+	bool is_close_lockbox;
 	bool is_close_keypad;
+	bool is_close_keycard;
 	bool is_open_escape;
+};
+
+struct s2c_packet_otherobject {
+	unsigned char size;
+	unsigned char type;
+
+	bool is_open_coffin;
+	bool get_robot;
+	bool get_baby;
+	bool is_open_board;
+	bool is_open_safedoor;
+};
+
+struct s2c_packet_boxmove {
+	unsigned char size;
+	unsigned char type;
+
+	float box_x, box_y, box_z;
+
 };
 
 struct s2c_packet_chat {

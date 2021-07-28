@@ -301,11 +301,40 @@ void send_object_packet(int c_id, int p_id)
 	//cout << endl;
 	}
 
+	for (int i = 0; i < 2; ++i)
+	{
+		packet.is_close_dryer[i] = Clients[p_id].object.is_close_dryer[i];
+
+		//cout << packet.is_close_refriger[i] << ", ";
+		//cout << endl;
+	}
+
+	packet.is_close_lockbox = Clients[p_id].object.is_close_lockbox;
 	packet.is_close_keypad = Clients[p_id].object.is_keypad;
+	packet.is_close_keycard = Clients[p_id].object.is_keycard;
 	packet.is_open_escape = Clients[p_id].object.is_escape;
 	//cout << endl;
 
 
+
+	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
+}
+
+void send_otherobject_packet(int c_id, int p_id)
+{
+	s2c_packet_otherobject packet;
+	packet.size = sizeof(packet);
+	packet.type = S2C_PACKET_OTHEROBJECT;
+
+
+	packet.is_open_coffin = Clients[p_id].otherobject.is_open_coffin;
+	packet.get_robot = Clients[p_id].otherobject.get_robot;
+	packet.get_baby = Clients[p_id].otherobject.get_baby;
+	packet.is_open_board = Clients[p_id].otherobject.is_open_board;
+	packet.is_open_safedoor = Clients[p_id].otherobject.is_open_safedoor;
+
+	//cout << packet.is_open_safedoor << endl;
+	//cout << endl;
 
 	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
@@ -701,8 +730,16 @@ void process_packet(int p_id, unsigned char* packet)
 		{
 			Clients[p_id].object.is_close_refriger[i] = object_packet->is_close_refriger[i];
 		}
+
+		for (int i = 0; i < 2; ++i)
+		{
+			Clients[p_id].object.is_close_dryer[i] = object_packet->is_close_dryer[i];
+		}
+
+		Clients[p_id].object.is_close_lockbox = object_packet->is_close_lockbox;
 		
 		Clients[p_id].object.is_keypad = object_packet->is_close_keypad;
+		Clients[p_id].object.is_keycard = object_packet->is_close_keycard;
 		Clients[p_id].object.is_escape = object_packet->is_open_escape;
 
 		for (auto& cl : Clients) {
@@ -720,6 +757,64 @@ void process_packet(int p_id, unsigned char* packet)
 		}
 	}
 						break;
+
+	case C2S_PACKET_OTHEROBJECT: {
+		c2s_packet_otherobject* object_packet = reinterpret_cast<c2s_packet_otherobject*>(packet);
+
+
+		Clients[p_id].otherobject.is_open_coffin = object_packet->is_open_coffin;
+		Clients[p_id].otherobject.get_robot = object_packet->get_robot;
+		Clients[p_id].otherobject.get_baby = object_packet->get_baby;
+		Clients[p_id].otherobject.is_open_board = object_packet->is_open_board;
+		Clients[p_id].otherobject.is_open_safedoor = object_packet->is_open_safedoor;
+
+		for (auto& cl : Clients) {
+			if (cl.m_id == p_id) continue;
+			//cl.m_lock.lock();
+			if (STATE_INGAME != cl.m_state)
+			{
+				//cl.m_lock.unlock();
+				continue;
+			}
+
+
+			send_otherobject_packet(cl.m_id, p_id);
+			//cl.m_lock.unlock();
+		}
+	}
+						  break;
+
+	case C2S_PACKET_BOXMOVE: {
+		c2s_packet_boxmove* box_packet = reinterpret_cast<c2s_packet_boxmove*>(packet);
+
+
+		//cout << "x : " << box_packet->box_x << "y : " << box_packet->box_y << "z : " << box_packet->box_z << endl;
+
+		for (auto& cl : Clients) {
+			if (cl.m_id == p_id) continue;
+			//cl.m_lock.lock();
+			if (STATE_INGAME != cl.m_state)
+			{
+				//cl.m_lock.unlock();
+				continue;
+			}
+
+
+			s2c_packet_boxmove b_packet;
+			b_packet.size = sizeof(b_packet);
+			b_packet.type = S2C_PACKET_BOXMOVE;
+
+			b_packet.box_x = box_packet->box_x;
+			b_packet.box_y = box_packet->box_y;
+			b_packet.box_z = box_packet->box_z;
+
+			send_packet(cl.m_id, &b_packet); //오버라이트가 커서 주소만 보내서 전송
+
+			//cl.m_lock.unlock();
+		}
+	}
+							   break;
+
 
 	case C2S_PACKET_CHAT: {
 		c2s_packet_chat* chat_packet = reinterpret_cast<c2s_packet_chat*>(packet);

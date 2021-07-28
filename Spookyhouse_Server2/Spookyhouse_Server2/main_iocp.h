@@ -63,8 +63,20 @@ struct OBJECT {
 	bool is_close_closet_right[6];
 	bool is_close_drawer[6];
 	bool is_close_refriger[6];
+	bool is_close_dryer[2];
+	bool is_close_lockbox;
 	bool is_keypad;
+	bool is_keycard;
 	bool is_escape;
+};
+
+struct OTHEROBJECT {
+
+	bool is_open_coffin;
+	bool get_robot;
+	bool get_baby;
+	bool is_open_board;
+	bool is_open_safedoor;
 };
 
 struct SESSION
@@ -81,6 +93,7 @@ struct SESSION
 	CharacterPacket character; //수정예정
 
 	OBJECT object;
+	OTHEROBJECT otherobject;
 	bool escape_key[3];
 	bool object_key[11];
 	unordered_set<int> m_viewlist; //순서없을때 더 빠르므로 사용

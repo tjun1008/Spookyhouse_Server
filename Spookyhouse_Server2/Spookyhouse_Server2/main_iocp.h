@@ -10,6 +10,7 @@
 #include <unordered_set>
 #include <fstream>
 #include <time.h>
+#include <queue>
 #include <stdlib.h>
 
 using namespace std;
@@ -47,7 +48,19 @@ struct CharacterPacket {
 	
 };
 
-enum OP_TYPE { OP_RECV, OP_SEND, OP_ACCEPT };
+struct MonsterPacket {
+
+	int MonsterID; // 몬스터 ID
+
+	// 위치
+	float x, y, z;
+
+	// 회전값
+	float yaw, pitch, roll;
+
+};
+
+enum OP_TYPE { OP_RECV, OP_SEND, OP_ACCEPT, OP_NPC_MOVE};
 
 struct EX_OVER {
 	WSAOVERLAPPED m_over;
@@ -103,4 +116,16 @@ struct SESSION
 struct KeyLocation
 {
 	float x, y, z;
+};
+
+struct timer_event {
+	int object_id;
+	OP_TYPE event_type;
+	chrono::system_clock::time_point exec_time;
+	int target_id;
+
+	constexpr bool operator < (const timer_event& l) const
+	{
+		return exec_time > l.exec_time;
+	}
 };

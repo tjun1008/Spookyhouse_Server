@@ -1,11 +1,15 @@
 #include "main_iocp.h"
 
+priority_queue <timer_event> timer_queue;
+mutex timer_lock;
 
-array <SESSION, MAX_USER + 1> Clients;
+array <SESSION, MAX_CLIENT + 1> Clients;
+
 
 SOCKET listenSocket;
 HANDLE h_iocp;
 int cur_player = 0;
+int npc_to_p_id = 0;
 bool bIsgameStart = false;
 KeyLocation firstf_key, bf_key, secf_key;
 
@@ -19,6 +23,15 @@ void display_error(const char* msg, int err_no)
 	cout << msg;
 	wcout << L" 에러 " << lpMsgBuf << endl;
 	LocalFree(lpMsgBuf);
+}
+
+void add_event(int id, OP_TYPE ev, int delay_ms)
+{
+	using namespace chrono;
+	timer_event event{ id, ev, system_clock::now() + milliseconds(delay_ms),0 };
+	timer_lock.lock();
+	timer_queue.emplace(event);
+	timer_lock.unlock();
 }
 
 bool can_see(int id_a, int id_b)
@@ -67,6 +80,37 @@ void client_init()
 		pl.m_state = STATE_FREE;
 
 	}
+}
+
+void init_npc()
+{
+	//for (int i = MAX_USER+1; i < MAX_CLIENT; ++i)
+	//{
+		auto& npc = Clients[5]; //npc 1
+		npc.m_id = 5;
+		npc.m_state = STATE_INGAME;
+		//npc.character.x = 1950; 0
+		//npc.character.y = -570; 0
+		//npc.character.z = -542; 60
+
+		npc.character.x = -1330; //-1105;
+		npc.character.y = -2871; //-2797;
+		npc.character.z = -540; //772;
+
+		npc.character.yaw = 0;
+		npc.character.pitch = 0;
+		npc.character.roll = -180;
+
+		
+
+		add_event(npc.m_id, OP_NPC_MOVE, 500);
+
+	//}
+}
+
+bool is_npc(int id)
+{
+	return id > MAX_USER;
 }
 
 void key_init()
@@ -186,6 +230,9 @@ void send_pc_login(int c_id, int p_id)
 	packet.y = Clients[p_id].character.y;
 	packet.z = Clients[p_id].character.z;
 
+	//cout << p_id << endl;
+	//cout << Clients[p_id].character.x << " " << Clients[p_id].character.y << " " << Clients[p_id].character.z << endl;
+
 	packet.yaw = Clients[p_id].character.yaw;
 	packet.pitch = Clients[p_id].character.pitch;
 	packet.roll = Clients[p_id].character.roll;
@@ -262,6 +309,23 @@ void send_move_packet(int c_id, int p_id)
 	packet.vz = Clients[p_id].character.vz;
 
 	packet.flashlight = Clients[p_id].character.flashlight;
+
+	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
+}
+
+
+void send_npc_move_packet(int c_id, int p_id, int player_id)
+{
+	s2c_packet_npc_move packet;
+	packet.id = p_id;
+	packet.size = sizeof(packet);
+	packet.type = S2C_PACKET_NPC_MOVE;
+
+	packet.x = Clients[p_id].character.x;
+	packet.y = Clients[p_id].character.y;
+	packet.z = Clients[p_id].character.z;
+
+	packet.player_id = player_id;
 
 	send_packet(c_id, &packet); //오버라이트가 커서 주소만 보내서 전송
 }
@@ -426,7 +490,7 @@ void player_move(int p_id, c2s_packet_move* move_packet)
 int get_new_player_id()
 {
 
-	for (int i = 0; i < MAX_USER; ++i) {
+	for (int i = 0; i < MAX_CLIENT; ++i) {
 		Clients[i].m_lock.lock();
 		if (STATE_FREE == Clients[i].m_state)
 		{
@@ -539,6 +603,8 @@ void process_packet(int p_id, unsigned char* packet)
 		{
 			if (pl.m_id == p_id) continue;
 
+			if (is_npc(pl.m_id)) continue;
+
 			if (STATE_INGAME != pl.m_state)
 			{
 				continue;
@@ -563,6 +629,8 @@ void process_packet(int p_id, unsigned char* packet)
 		{
 			if (pl.m_id == p_id) continue;
 
+			if (is_npc(pl.m_id)) continue;
+
 			if (STATE_INGAME != pl.m_state)
 			{
 				continue;
@@ -585,6 +653,8 @@ void process_packet(int p_id, unsigned char* packet)
 			for (auto& pl : Clients)
 			{
 				if (pl.m_id == p_id) continue;
+
+				if (is_npc(pl.m_id)) continue;
 
 				if (STATE_INGAME != pl.m_state)
 				{
@@ -612,6 +682,8 @@ void process_packet(int p_id, unsigned char* packet)
 		for (auto& pl : Clients)
 		{
 			if (pl.m_id == p_id) continue;
+
+			if (is_npc(pl.m_id)) continue;
 
 			if (STATE_INGAME != pl.m_state)
 			{
@@ -684,6 +756,7 @@ void process_packet(int p_id, unsigned char* packet)
 				continue;
 			}
 
+			//cout << pl.m_id << endl;
 
 			send_pc_login(p_id, pl.m_id);
 			send_pc_login(pl.m_id, p_id);
@@ -808,12 +881,57 @@ void process_packet(int p_id, unsigned char* packet)
 			b_packet.box_y = box_packet->box_y;
 			b_packet.box_z = box_packet->box_z;
 
+
 			send_packet(cl.m_id, &b_packet); //오버라이트가 커서 주소만 보내서 전송
 
 			//cl.m_lock.unlock();
 		}
 	}
 							   break;
+
+	case C2S_PACKET_AIMOVE: {
+		c2s_packet_aimove* ai_packet = reinterpret_cast<c2s_packet_aimove*>(packet);
+
+		//for(int i=0;i<2;++i)
+		//{ 
+		//cout << "x : " << ai_packet->mug_x[i] << " y : " << ai_packet->mug_y[i] << " z : " << ai_packet->mug_z[i] << endl;
+		//}
+
+		for (auto& cl : Clients) {
+			if (cl.m_id == p_id) continue;
+			//cl.m_lock.lock();
+			if (STATE_INGAME != cl.m_state)
+			{
+				//cl.m_lock.unlock();
+				continue;
+			}
+
+
+			s2c_packet_aimove a_packet;
+			a_packet.size = sizeof(a_packet);
+			a_packet.type = S2C_PACKET_AIMOVE;
+
+			for(int i=0;i<2;++i)
+			{ 
+			a_packet.mug_x[i] = ai_packet->mug_x[i];
+			a_packet.mug_y[i] = ai_packet->mug_y[i];
+			a_packet.mug_z[i] = ai_packet->mug_z[i];
+
+			a_packet.mug_yaw[i] = ai_packet->mug_yaw[i];
+			a_packet.mug_pitch[i] = ai_packet->mug_pitch[i];
+			a_packet.mug_roll[i] = ai_packet->mug_roll[i];
+
+			a_packet.mug_vx[i] = ai_packet->mug_vx[i];
+			a_packet.mug_vy[i] = ai_packet->mug_vy[i];
+			a_packet.mug_vz[i] = ai_packet->mug_vz[i];
+			}
+
+			send_packet(cl.m_id, &a_packet); //오버라이트가 커서 주소만 보내서 전송
+
+			//cl.m_lock.unlock();
+		}
+	}
+						   break;
 
 
 	case C2S_PACKET_CHAT: {
@@ -977,10 +1095,111 @@ void worker()
 		
 		}
 		break;
+		case OP_NPC_MOVE:
+		{
+			
+
+				for (int i = MAX_USER + 1; i < MAX_CLIENT; ++i)
+				{
+					//lock_guard<mutex> guard2{ player.m_lock };
+
+					if (STATE_INGAME != Clients[i].m_state)
+					{
+						//cl.m_lock.unlock();
+						continue;
+					}
+
+					for (auto& player : Clients)
+					{
+						
+						if (STATE_INGAME != player.m_state)
+						{
+							//cl.m_lock.unlock();
+							continue;
+						}
+
+						if (is_npc(player.m_id)) continue;
+
+						float temp = sqrtf((Clients[i].character.x - player.character.x) * (Clients[i].character.x - player.character.x) +
+							(Clients[i].character.y - player.character.y) * (Clients[i].character.y - player.character.y));
+
+						if (temp < 500)
+						{
+							if (Clients[i].character.x < player.character.x)
+								Clients[i].character.x += 30;
+							if (Clients[i].character.x > player.character.x)
+								Clients[i].character.x -= 30;
+							if (Clients[i].character.y < player.character.y)
+								Clients[i].character.y += 30;
+							if (Clients[i].character.y > player.character.y)
+								Clients[i].character.y -= 30;
+							/*
+							if (Clients[i].character.z > player.character.x)
+								Clients[i].character.z += 50;
+							if (Clients[i].character.z < player.character.x)
+								 -= 50;
+								 */
+
+							//cout << "asdf";
+
+							npc_to_p_id = player.m_id;
+
+							//cout << p_id << endl;
+						}
+
+						send_npc_move_packet(player.m_id, Clients[i].m_id, npc_to_p_id);
+
+					}
+				}
+
+				//cout << "asd";
+			add_event(key, OP_NPC_MOVE, 500);
+			delete ex_over;
+			
+
+		}
+		break;
 		default: cout << "Unknown GQCS Error!\n";
 			exit(-1);
 		}
 	}
+}
+
+void do_timer()
+{
+	using namespace chrono;
+
+	while (true) {
+
+		this_thread::sleep_for(1ms); //너무 빨리 움직여서 조정
+
+		while (true) {
+			if (false == timer_queue.empty()) {
+				auto ev = timer_queue.top();
+				if (ev.exec_time > system_clock::now()) break;
+				timer_lock.lock();
+				timer_queue.pop();
+				timer_lock.unlock();
+
+				switch (ev.event_type) {
+				case OP_NPC_MOVE: {
+					EX_OVER* ex_over = new EX_OVER;
+					ex_over->m_op = OP_NPC_MOVE;
+					PostQueuedCompletionStatus(h_iocp, 1, ev.object_id, &ex_over->m_over);
+					//cout << "정리\n";
+					//do_random_move_npc(ev.object_id);
+					//add_event(ev.object_id, OP_RANDOM_MOVE, 1000); //worker thread로 넘김
+				}
+
+								   break;
+				
+				}
+			}
+
+		}
+
+	}
+
 }
 
 int main()
@@ -997,6 +1216,7 @@ int main()
 	init_server();
 
 	client_init();
+	init_npc();
 
 	// iocp 객체와 소켓 연결
 	CreateIoCompletionPort(reinterpret_cast<HANDLE>(listenSocket),
@@ -1009,6 +1229,9 @@ int main()
 	vector <thread> worker_threads;
 	for (int i = 0; i < NUM_THREADS; ++i)
 		worker_threads.emplace_back(worker);
+
+	thread timer_thread{ do_timer };
+	timer_thread.join();
 
 	for (auto& th : worker_threads) th.join();
 	closesocket(listenSocket);

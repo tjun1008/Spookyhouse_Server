@@ -8,10 +8,12 @@ constexpr int MAX_NAME = 20;
 constexpr int MAX_STR_LEN = 50;
 
 constexpr int MAX_BUFFER = 512;
-constexpr short SERVER_PORT = 3800;
+constexpr short SERVER_PORT = 3700;
 constexpr int BOARD_WIDTH = 8;
 constexpr int BOARD_HEIGHT = 8;
 constexpr int MAX_USER = 4;
+constexpr int MAX_CLIENT = 10; //5부터 npc 시작
+constexpr int MAX_MONSTER = 5;
 constexpr short DAMAGE = 10;
 constexpr int MAX_CHAT_SIZE = 50;
 constexpr int MAX_PACKET_SIZE1 = 255;
@@ -30,24 +32,27 @@ constexpr unsigned char C2S_PACKET_MOVE = 5;
 constexpr unsigned char C2S_PACKET_OBJECT = 6;
 constexpr unsigned char C2S_PACKET_OTHEROBJECT = 7;
 constexpr unsigned char C2S_PACKET_BOXMOVE = 8;
-constexpr unsigned char C2S_PACKET_CHAT = 9;
-constexpr unsigned char C2S_PACKET_KEY = 10;
-constexpr unsigned char C2S_PACKET_KEY_VISIBLE = 11;
+constexpr unsigned char C2S_PACKET_AIMOVE = 9;
+constexpr unsigned char C2S_PACKET_CHAT = 10;
+constexpr unsigned char C2S_PACKET_KEY = 11;
+constexpr unsigned char C2S_PACKET_KEY_VISIBLE = 12;
 
-constexpr unsigned char S2C_PACKET_LOBBY = 12;
-constexpr unsigned char S2C_PACKET_READY = 13;
-constexpr unsigned char S2C_PACKET_GAME_START = 14;
-constexpr unsigned char S2C_PACKET_LOGIN_INFO = 15;
-constexpr unsigned char S2C_PACKET_KEY_INFO = 16;
-constexpr unsigned char S2C_PACKET_PC_LOGIN = 17;
-constexpr unsigned char S2C_PACKET_PC_MOVE = 18;
-constexpr unsigned char S2C_PACKET_OBJECT = 19;
-constexpr unsigned char S2C_PACKET_OTHEROBJECT = 20;
-constexpr unsigned char S2C_PACKET_BOXMOVE = 21;
-constexpr unsigned char S2C_PACKET_CHAT = 22;
-constexpr unsigned char S2C_PACKET_KEY = 23;
-constexpr unsigned char S2C_PACKET_KEY_VISIBLE = 24;
-constexpr unsigned char S2C_PACKET_PC_LOGOUT = 25;
+constexpr unsigned char S2C_PACKET_LOBBY = 13;
+constexpr unsigned char S2C_PACKET_READY = 14;
+constexpr unsigned char S2C_PACKET_GAME_START = 15;
+constexpr unsigned char S2C_PACKET_LOGIN_INFO = 16;
+constexpr unsigned char S2C_PACKET_KEY_INFO = 17;
+constexpr unsigned char S2C_PACKET_PC_LOGIN = 18;
+constexpr unsigned char S2C_PACKET_PC_MOVE = 19;
+constexpr unsigned char S2C_PACKET_NPC_MOVE = 20;
+constexpr unsigned char S2C_PACKET_OBJECT = 21;
+constexpr unsigned char S2C_PACKET_OTHEROBJECT = 22;
+constexpr unsigned char S2C_PACKET_BOXMOVE = 23;
+constexpr unsigned char S2C_PACKET_AIMOVE = 24;
+constexpr unsigned char S2C_PACKET_CHAT = 25;
+constexpr unsigned char S2C_PACKET_KEY = 26;
+constexpr unsigned char S2C_PACKET_KEY_VISIBLE = 27;
+constexpr unsigned char S2C_PACKET_PC_LOGOUT = 28;
 
 
 #pragma pack (push,1) //공백이 생기는걸 막아야함
@@ -90,6 +95,15 @@ struct c2s_packet_move {
 	//char dir; // 0 : UP 1: RIGHT 2:DOWN 3: LEFT
 };
 
+struct c2s_packet_npc_move {
+	unsigned char size;
+	unsigned char type;
+
+	// 정보
+	float x, y, z;
+
+};
+
 struct c2s_packet_object {
 	unsigned char size;
 	unsigned char type;
@@ -122,6 +136,27 @@ struct c2s_packet_boxmove {
 	unsigned char type;
 
 	float box_x, box_y, box_z;
+
+};
+
+/*
+struct c2s_packet_aimove {
+	unsigned char size;
+	unsigned char type;
+
+	float mug_x, mug_y, mug_z;
+	float mug_yaw, mug_pitch, mug_roll;
+
+};
+*/
+
+struct c2s_packet_aimove {
+	unsigned char size;
+	unsigned char type;
+
+	float mug_x[2], mug_y[2], mug_z[2];
+	float mug_roll[2], mug_pitch[2], mug_yaw[2];
+	float mug_vx[2], mug_vy[2], mug_vz[2];
 
 };
 
@@ -223,6 +258,17 @@ struct s2c_packet_pc_move
 	bool flashlight;
 };
 
+struct s2c_packet_npc_move
+{
+	unsigned char size;
+	unsigned char type;
+	int id;
+	float x, y, z;
+
+	int player_id;
+
+};
+
 struct s2c_packet_object
 {
 	unsigned char size;
@@ -256,6 +302,26 @@ struct s2c_packet_boxmove {
 	unsigned char type;
 
 	float box_x, box_y, box_z;
+
+};
+
+/*
+struct s2c_packet_aimove {
+	unsigned char size;
+	unsigned char type;
+
+	float mug_x, mug_y, mug_z;
+	float mug_yaw, mug_pitch, mug_roll;
+
+};
+*/
+struct s2c_packet_aimove {
+	unsigned char size;
+	unsigned char type;
+
+	float mug_x[2], mug_y[2], mug_z[2];
+	float mug_roll[2], mug_pitch[2], mug_yaw[2];
+	float mug_vx[2], mug_vy[2], mug_vz[2];
 
 };
 

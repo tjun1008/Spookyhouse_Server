@@ -1,0 +1,21 @@
+﻿  iocp_server.cpp
+iocp_server.obj : error LNK2005: "unsigned __int64 listenSocket" (?listenSocket@@3_KA)이(가) Global.obj에 이미 정의되어 있습니다.
+iocp_server.obj : error LNK2005: "int cur_player" (?cur_player@@3HA)이(가) Global.obj에 이미 정의되어 있습니다.
+iocp_server.obj : error LNK2005: "bool bIsgameStart" (?bIsgameStart@@3_NA)이(가) Global.obj에 이미 정의되어 있습니다.
+iocp_server.obj : error LNK2005: "struct KeyLocation firstf_key" (?firstf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
+iocp_server.obj : error LNK2005: "struct KeyLocation bf_key" (?bf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
+iocp_server.obj : error LNK2005: "struct KeyLocation secf_key" (?secf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
+Player.obj : error LNK2005: "unsigned __int64 listenSocket" (?listenSocket@@3_KA)이(가) Global.obj에 이미 정의되어 있습니다.
+Player.obj : error LNK2005: "int cur_player" (?cur_player@@3HA)이(가) Global.obj에 이미 정의되어 있습니다.
+Player.obj : error LNK2005: "bool bIsgameStart" (?bIsgameStart@@3_NA)이(가) Global.obj에 이미 정의되어 있습니다.
+Player.obj : error LNK2005: "struct KeyLocation firstf_key" (?firstf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
+Player.obj : error LNK2005: "struct KeyLocation bf_key" (?bf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
+Player.obj : error LNK2005: "struct KeyLocation secf_key" (?secf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
+ThreadFunctions.obj : error LNK2005: "unsigned __int64 listenSocket" (?listenSocket@@3_KA)이(가) Global.obj에 이미 정의되어 있습니다.
+ThreadFunctions.obj : error LNK2005: "int cur_player" (?cur_player@@3HA)이(가) Global.obj에 이미 정의되어 있습니다.
+ThreadFunctions.obj : error LNK2005: "bool bIsgameStart" (?bIsgameStart@@3_NA)이(가) Global.obj에 이미 정의되어 있습니다.
+ThreadFunctions.obj : error LNK2005: "struct KeyLocation firstf_key" (?firstf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
+ThreadFunctions.obj : error LNK2005: "struct KeyLocation bf_key" (?bf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
+ThreadFunctions.obj : error LNK2005: "struct KeyLocation secf_key" (?secf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
+iocp_server.obj : error LNK2019: "public: void __cdecl IocpServer::do_accept(unsigned __int64,struct EX_OVER *)" (?do_accept@IocpServer@@QEAAX_KPEAUEX_OVER@@@Z)"public: void __cdecl IocpServer::Progress(void)" (?Progress@IocpServer@@QEAAXXZ) 함수에서 참조되는 확인할 수 없는 외부 기호
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\x64\Debug\ex_server.exe : fatal error LNK1120: 1개의 확인할 수 없는 외부 참조입니다.

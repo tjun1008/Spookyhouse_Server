@@ -35,7 +35,7 @@ public:
 	void Mutex_unlock() { m_lock.unlock(); }
 	void SetState(S_STATE state) { m_state = state; }
 	void SetGameID(char* name) {
-		strcpy(m_name, name);
+		strcpy_s(m_name, name);
 	}
 	void SetHost(const bool state) { host = state; }
 	void SetReady(const bool state) { ready = state; }
@@ -43,12 +43,12 @@ public:
 	void SetFlashlight(const bool n) { flashlight = n; }
 
 public:
-	SOCKET& GetSocket() { return m_s; }
-	S_STATE GetState() { return m_state; }
-	char* GetGameID() { return m_name; }
-	bool GetHost() { return host; }
-	bool GetReady() { return ready; }
-	bool GetFlashlight()  { return flashlight; }
+	const SOCKET& GetSocket() const { return m_s; }
+	const S_STATE GetState() const { return m_state; }
+	const char* GetGameID() const { return m_name; }
+	const bool GetHost() const { return host; }
+	const bool GetReady() const { return ready; }
+	const bool GetFlashlight() const { return flashlight; }
 
 	
 };

@@ -14,12 +14,14 @@ SOCKET listenSocket;
 int cur_player = 0;
 bool bIsgameStart = false;
 
-KeyLocation firstf_key, bf_key, secf_key;
-
 struct KeyLocation
 {
 	float x, y, z;
 };
+
+KeyLocation firstf_key, bf_key, secf_key;
+
+
 
 
 

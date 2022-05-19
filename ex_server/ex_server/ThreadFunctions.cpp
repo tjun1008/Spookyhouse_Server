@@ -1,6 +1,5 @@
 #include "ThreadFunctions.h"
 #include "Header.h"
-#include "Global.h"
 
 
 
@@ -239,6 +238,44 @@ void process_packet(int p_id, unsigned char* packet)
 	}
 	break;
 
+	case C2S_PACKET_PLAYER_INFO: {
+		c2s_packet_playerinfo* info_packet = reinterpret_cast<c2s_packet_playerinfo*>(packet);
+
+		Player* player = dynamic_cast<Player*>(players[p_id]);
+
+		player->SetX(-1620);
+		player->SetY(-29);
+		player->SetZ(117);
+
+		player->SetYaw(0);
+		player->SetPitch(0);
+		player->SetRoll(0);
+
+		player->SetVX(0);
+		player->SetVY(0);
+		player->SetVZ(0);
+
+		player->SetFlashlight(true);
+
+		for (int i = 0; i < players.size(); ++i)
+		{
+			Player* pl = dynamic_cast<Player*>(players[i]);
+
+			if (pl->GetID() == p_id) continue;
+
+			if (is_npc(pl->GetID())) continue;
+
+			if (STATE_INGAME != pl->GetState()) continue;
+
+			send_pc_login(pl->GetID(), p_id);
+			send_pc_login(p_id, pl->GetID());
+
+		}
+
+
+
+	}
+	break;
 	case C2S_PACKET_MOVE: {
 		c2s_packet_move* move_packet = reinterpret_cast<c2s_packet_move*>(packet);
 
@@ -456,3 +493,36 @@ void player_move(int p_id, c2s_packet_move* move_packet)
 
 }
 
+void send_pc_login(int c_id, int p_id)
+{
+	s2c_packet_pc_login packet;
+	packet.id = p_id;
+	packet.size = sizeof(packet);
+
+	Player* player = dynamic_cast<Player*>(players[p_id]);
+
+	packet.type = S2C_PACKET_PC_LOGIN;
+	packet.x = player->GetX();
+	packet.y = player->GetY();
+	packet.z = player->GetZ();
+
+	//cout << p_id << endl;
+	//cout << Clients[p_id].character.x << " " << Clients[p_id].character.y << " " << Clients[p_id].character.z << endl;
+
+	packet.yaw = player->GetYaw();
+	packet.pitch = player->GetPitch();
+	packet.roll = player->GetRoll();
+
+	packet.vx = player->GetVX();
+	packet.vy = player->GetVY();
+	packet.vz = player->GetVZ();
+
+	//packet.flashlight = players[p_id].character.flashlight;
+
+	strcpy_s(packet.name, player->GetGameID());
+
+	
+
+	packet.o_type = 0;
+	send_packet(c_id, &packet);
+}

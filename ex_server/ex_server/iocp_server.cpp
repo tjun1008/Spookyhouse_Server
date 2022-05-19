@@ -1,5 +1,4 @@
 #include "iocp_server.h"
-#include "Global.h"
 #include "ThreadFunctions.h"
 
 IocpServer::IocpServer()

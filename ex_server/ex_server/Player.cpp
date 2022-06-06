@@ -74,12 +74,15 @@ void Player::AcceptPacket(const UINT& id, SOCKET c_socket)
 
 void Player::do_recv(int p_id)
 {
+	/*
 	EX_OVER& r_over = m_recv_over;
 	// r_over.m_op = OP_RECV;
 	memset(&r_over.m_over, 0, sizeof(r_over.m_over));
 	r_over.m_wsabuf[0].buf = reinterpret_cast<CHAR*>(r_over.m_netbuf) + m_prev_recv;
 	r_over.m_wsabuf[0].len = MAX_BUFFER - m_prev_recv;
+	*/
+
 	DWORD r_flag = 0;
-	WSARecv(m_s, r_over.m_wsabuf, 1, 0, &r_flag, &r_over.m_over, 0);
+	WSARecv(m_s, m_recv_over.m_wsabuf, 1, 0, &r_flag, &m_recv_over.m_over, 0);
 }
 

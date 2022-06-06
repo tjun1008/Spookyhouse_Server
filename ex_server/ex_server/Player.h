@@ -7,8 +7,6 @@ class Player :public Object
 private:
 	SOCKET   m_s;
 
-	unordered_set <int> m_viewlist;
-	mutex m_vl;
 
 	int last_move_time;
 
@@ -33,23 +31,27 @@ public:
 public:
 	void Mutex_lock() { m_lock.lock(); }
 	void Mutex_unlock() { m_lock.unlock(); }
-	void SetState(S_STATE state) { m_state = state; }
+	
 	void SetGameID(char* name) {
 		strcpy_s(m_name, name);
 	}
 	void SetHost(const bool state) { host = state; }
 	void SetReady(const bool state) { ready = state; }
-
 	void SetFlashlight(const bool n) { flashlight = n; }
+
+	void SetSocket(const SOCKET& socket) { m_s = socket; } 
+	void SetId(const int& n) { m_id = n; }
 
 public:
 	const SOCKET& GetSocket() const { return m_s; }
-	const S_STATE GetState() const { return m_state; }
+	
 	const char* GetGameID() const { return m_name; }
 	const bool GetHost() const { return host; }
 	const bool GetReady() const { return ready; }
 	const bool GetFlashlight() const { return flashlight; }
 
+	SOCKET& GetSocket() { return m_s; }
+	int& GetID() { return m_id; }
 	
 };
 

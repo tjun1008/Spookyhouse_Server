@@ -1,32 +1,35 @@
 #pragma once
 
-#include "protocol.h"
-#include "Player.h"
 
 
 class IocpServer
 {
-private:
-	
-
-
-	vector<thread*>	Workerthread;
-	thread			Acceptthread;
-	thread			t_thread;
-	
-
 public:
 	IocpServer();
 	~IocpServer();
-public:
+
 	bool Initialize();
-	void Progress();
-	void Release();
+	bool StartWorkerThreads();
+	void Finalize();
+	bool StartAcceptLoop();
+
+	void CreateObjectPool();
 
 public:
-	void LoadCharacter(); // +추후엔 LoadObject
+	// worker thread용
+	static void WorkerThread(LPVOID arg);
+	void WorkerThreadFunc();
 
-public:
-	void do_accept(SOCKET s_socket, EX_OVER* a_over);
-	void display_error(const char* msg, int err_no);
+	void send_pc_lobby(int c_id, int p_id);
+	void send_packet(int p_id, void* buf);
+	void Disconnect(int p_id);
+	void send_pc_logout(int c_id, int p_id);
+
+private:
+	HANDLE	mIOCP;
+	SOCKET	mListenSocket;
+
+	vector<thread>			mWorkerThreads;
 };
+
+//extern IocpServer* GIocpServer;

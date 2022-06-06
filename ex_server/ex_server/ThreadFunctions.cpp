@@ -1,7 +1,7 @@
 #include "ThreadFunctions.h"
 #include "Header.h"
 
-
+//참고용 / 사용안함
 
 
 void do_accept(SOCKET s_socket, EX_OVER* a_over)

@@ -1,21 +1,59 @@
-﻿  iocp_server.cpp
-iocp_server.obj : error LNK2005: "unsigned __int64 listenSocket" (?listenSocket@@3_KA)이(가) Global.obj에 이미 정의되어 있습니다.
-iocp_server.obj : error LNK2005: "int cur_player" (?cur_player@@3HA)이(가) Global.obj에 이미 정의되어 있습니다.
-iocp_server.obj : error LNK2005: "bool bIsgameStart" (?bIsgameStart@@3_NA)이(가) Global.obj에 이미 정의되어 있습니다.
-iocp_server.obj : error LNK2005: "struct KeyLocation firstf_key" (?firstf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
-iocp_server.obj : error LNK2005: "struct KeyLocation bf_key" (?bf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
-iocp_server.obj : error LNK2005: "struct KeyLocation secf_key" (?secf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
-Player.obj : error LNK2005: "unsigned __int64 listenSocket" (?listenSocket@@3_KA)이(가) Global.obj에 이미 정의되어 있습니다.
-Player.obj : error LNK2005: "int cur_player" (?cur_player@@3HA)이(가) Global.obj에 이미 정의되어 있습니다.
-Player.obj : error LNK2005: "bool bIsgameStart" (?bIsgameStart@@3_NA)이(가) Global.obj에 이미 정의되어 있습니다.
-Player.obj : error LNK2005: "struct KeyLocation firstf_key" (?firstf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
-Player.obj : error LNK2005: "struct KeyLocation bf_key" (?bf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
-Player.obj : error LNK2005: "struct KeyLocation secf_key" (?secf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
-ThreadFunctions.obj : error LNK2005: "unsigned __int64 listenSocket" (?listenSocket@@3_KA)이(가) Global.obj에 이미 정의되어 있습니다.
-ThreadFunctions.obj : error LNK2005: "int cur_player" (?cur_player@@3HA)이(가) Global.obj에 이미 정의되어 있습니다.
-ThreadFunctions.obj : error LNK2005: "bool bIsgameStart" (?bIsgameStart@@3_NA)이(가) Global.obj에 이미 정의되어 있습니다.
-ThreadFunctions.obj : error LNK2005: "struct KeyLocation firstf_key" (?firstf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
-ThreadFunctions.obj : error LNK2005: "struct KeyLocation bf_key" (?bf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
-ThreadFunctions.obj : error LNK2005: "struct KeyLocation secf_key" (?secf_key@@3UKeyLocation@@A)이(가) Global.obj에 이미 정의되어 있습니다.
-iocp_server.obj : error LNK2019: "public: void __cdecl IocpServer::do_accept(unsigned __int64,struct EX_OVER *)" (?do_accept@IocpServer@@QEAAX_KPEAUEX_OVER@@@Z)"public: void __cdecl IocpServer::Progress(void)" (?Progress@IocpServer@@QEAAXXZ) 함수에서 참조되는 확인할 수 없는 외부 기호
-C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\x64\Debug\ex_server.exe : fatal error LNK1120: 1개의 확인할 수 없는 외부 참조입니다.
+﻿  stdafx.cpp
+  Global.cpp
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Global.h(5,17): error C2374: 'SERVER_PORT': 재정의. 여러 번 초기화했습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\protocol.h(11): message : 'SERVER_PORT' 선언을 참조하십시오.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Global.h(6,15): error C2374: 'NUM_THREADS': 재정의. 여러 번 초기화했습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Header.h(5): message : 'NUM_THREADS' 선언을 참조하십시오.
+  Object.cpp
+  Player.cpp
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Global.h(5,17): error C2374: 'SERVER_PORT': 재정의. 여러 번 초기화했습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\protocol.h(11): message : 'SERVER_PORT' 선언을 참조하십시오.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Global.h(6,15): error C2374: 'NUM_THREADS': 재정의. 여러 번 초기화했습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Header.h(5): message : 'NUM_THREADS' 선언을 참조하십시오.
+  ThreadFunctions.cpp
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Global.h(5,17): error C2374: 'SERVER_PORT': 재정의. 여러 번 초기화했습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\protocol.h(11): message : 'SERVER_PORT' 선언을 참조하십시오.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Global.h(6,15): error C2374: 'NUM_THREADS': 재정의. 여러 번 초기화했습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Header.h(5): message : 'NUM_THREADS' 선언을 참조하십시오.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(42,40): error C2065: 'h_iocp': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(70,15): error C2065: 'listenSocket': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(92,7): error C2065: 'cur_player': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(94,16): error C2065: 'listenSocket': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(98,15): error C2065: 'bIsgameStart': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(98,15): warning C4805: '==': 연산에 'bool' 형식과 'unknown-type' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(99,16): error C2065: 'listenSocket': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(107,7): error C2065: 'cur_player': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(118,3): error C2065: 'cur_player': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(193,6): error C2065: 'bIsgameStart': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(197,5): error C2065: 'bIsgameStart': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(204,7): error C2065: 'bIsgameStart': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(204,23): warning C4805: '==': 연산에 'unknown-type' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(305,102): error C2065: 'h_iocp': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(308,12): error C2065: 'listenSocket': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(383,12): error C2065: 'bIsgameStart': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(392,15): error C2065: 'firstf_key': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(393,15): error C2065: 'firstf_key': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(394,15): error C2065: 'firstf_key': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(396,11): error C2065: 'bf_key': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(397,11): error C2065: 'bf_key': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(398,11): error C2065: 'bf_key': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(400,13): error C2065: 'secf_key': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(401,13): error C2065: 'secf_key': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(402,13): error C2065: 'secf_key': 선언되지 않은 식별자입니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(465,26): warning C4244: '인수': 'float'에서 'const short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(466,26): warning C4244: '인수': 'float'에서 'const short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(467,26): warning C4244: '인수': 'float'에서 'const short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(469,28): warning C4244: '인수': 'float'에서 'const short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(470,30): warning C4244: '인수': 'float'에서 'const short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(471,29): warning C4244: '인수': 'float'에서 'const short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(473,27): warning C4244: '인수': 'float'에서 'const short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(474,27): warning C4244: '인수': 'float'에서 'const short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\ThreadFunctions.cpp(475,27): warning C4244: '인수': 'float'에서 'const short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  iocp_server.cpp
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Global.h(5,17): error C2374: 'SERVER_PORT': 재정의. 여러 번 초기화했습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\protocol.h(11): message : 'SERVER_PORT' 선언을 참조하십시오.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Global.h(6,15): error C2374: 'NUM_THREADS': 재정의. 여러 번 초기화했습니다.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\Header.h(5): message : 'NUM_THREADS' 선언을 참조하십시오.
+C:\Users\최주은\Documents\GitHub\Spookyhouse_Server\ex_server\ex_server\iocp_server.cpp(168,12): warning C4244: '인수': 'time_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  main.cpp
+  코드를 생성하고 있습니다...

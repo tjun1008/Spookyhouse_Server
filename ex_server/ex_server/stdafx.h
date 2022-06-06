@@ -15,7 +15,7 @@
 #include <mutex>
 #include <unordered_set> //셋보다 더 성능이 좋음
 #include <array>
-
+#include <fstream>
 #include "protocol.h"
 
 using namespace std;
